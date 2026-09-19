@@ -4,21 +4,25 @@ import { ArrowRight, Sparkles, Activity, ShieldCheck, Zap, Cpu } from 'lucide-re
 export default function HeroSection({ onExploreOps }) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    setMousePos({ x: (x / rect.width) * 30, y: -(y / rect.height) * 30 });
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const handlePointerMove = (event) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    setTilt({
+      x: ((event.clientX - bounds.left) / bounds.width - 0.5) * 2,
+      y: ((event.clientY - bounds.top) / bounds.height - 0.5) * -2,
+    });
   };
 
-  const handleMouseLeave = () => {
-    setMousePos({ x: 0, y: 0 });
+  const handlePointerLeave = () => {
+    setTilt({ x: 0, y: 0 });
   };
 
   return (
     <section
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className="editorial-hero"
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       style={{
         padding: '80px 32px 60px',
         maxWidth: '1200px',
@@ -48,7 +52,7 @@ export default function HeroSection({ onExploreOps }) {
       {/* Main Title with 3D Parallax Perspective */}
       <div
         style={{
-          transform: `perspective(1000px) rotateX(${mousePos.y * 0.3}deg) rotateY(${mousePos.x * 0.3}deg)`,
+          transform: `perspective(1000px) rotateX(${tilt.y * 0.8}deg) rotateY(${tilt.x * 0.8}deg)`,
           transition: 'transform 0.1s ease-out',
           position: 'relative',
           zIndex: 2,
@@ -100,6 +104,7 @@ export default function HeroSection({ onExploreOps }) {
       {/* Hero Interactive 3D Card Holographic Container */}
       <div
         className="ar-card-3d"
+        id="simulator"
         style={{
           padding: '28px',
           borderRadius: '28px',
@@ -107,7 +112,7 @@ export default function HeroSection({ onExploreOps }) {
           textAlign: 'left',
           position: 'relative',
           overflow: 'hidden',
-          transform: `perspective(1000px) rotateX(${mousePos.y * 0.5}deg) rotateY(${mousePos.x * 0.5}deg) translateZ(10px)`,
+           transform: `perspective(1000px) rotateX(${tilt.y * 1.2}deg) rotateY(${tilt.x * 1.2}deg) translateZ(10px)`,
           transition: 'transform 0.15s ease-out',
           zIndex: 2,
         }}
@@ -115,6 +120,19 @@ export default function HeroSection({ onExploreOps }) {
         <div className="ar-holo-reflection" />
         {/* Glow overlay */}
         <div style={{ position: 'absolute', top: -50, right: -50, width: '250px', height: '250px', background: 'radial-gradient(circle, rgba(0, 113, 227, 0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+        <div className="generative-network-graph" aria-label="Animated six junction network graph">
+          <div className="graph-caption"><span className="graph-live-dot" /> LIVE TOPOLOGY SYNTHESIS <b>6 NODES / 8 LINKS</b></div>
+          {['j1-j2', 'j2-j3', 'j1-j4', 'j2-j5', 'j3-j6', 'j4-j5', 'j5-j6', 'j2-j4'].map((edge, index) => (
+            <span key={edge} className={`graph-edge graph-edge-${edge}`} style={{ animationDelay: `${index * 0.35}s` }}><i /></span>
+          ))}
+          {[
+            ['j1', 'J1', 'NORTH'], ['j2', 'J2', 'EAST'], ['j3', 'J3', 'METRO'],
+            ['j4', 'J4', 'TRAUMA'], ['j5', 'J5', 'WEST'], ['j6', 'J6', 'SOUTH'],
+          ].map(([className, id, label]) => (
+            <span key={id} className={`graph-node graph-node-${className}`}><b>{id}</b><small>{label}</small></span>
+          ))}
+        </div>
 
         {/* Header bar of preview */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '16px' }}>

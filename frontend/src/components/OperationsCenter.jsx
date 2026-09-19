@@ -58,6 +58,8 @@ export default function OperationsCenter() {
   const [pickupJunction, setPickupJunction] = useState('J1');
   const [destJunction, setDestJunction] = useState('J3');
   const [activeCorridor, setActiveCorridor] = useState(null);
+  const [cameraTelemetry, setCameraTelemetry] = useState({ vehicles: 0, pedestrians: 0 });
+  const [blockedRoads, setBlockedRoads] = useState([]);
 
   // Quantum Optimization Results State
   const [benchmarkResult, setBenchmarkResult] = useState({
@@ -167,8 +169,9 @@ export default function OperationsCenter() {
       dispatch({ type: 'ADD_LOG', payload: `DISPATCH: Emergency Ambulance dispatched ${pickupJunction} → ${destJunction} (ID: ${res.emergency_id || res.request_id})` });
 
       // Automatically trigger green corridor lock
-      const routeRes = await emergencyService.calculateRoute(pickupJunction, destJunction);
-      const chosenPath = routeRes?.path || [pickupJunction, 'J2', destJunction];
+      const emergencyId = res.emergency_id || res.request_id;
+      const routeRes = await emergencyService.getRoute(emergencyId);
+      const chosenPath = routeRes?.nodes || routeRes?.path || [pickupJunction, 'J2', destJunction];
       setActiveCorridor({
         id: `CORR-${Math.floor(Math.random() * 9000 + 1000)}`,
         origin: pickupJunction,
@@ -199,6 +202,20 @@ export default function OperationsCenter() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCameraTelemetry = ({ vehicles, pedestrians }) => {
+    setCameraTelemetry({ vehicles, pedestrians });
+    setSimulationJunctions((previous) => ({
+      ...previous,
+      J1: {
+        ...previous.J1,
+        queue: Math.min(30, Math.max(0, vehicles * 2)),
+        density: Math.min(0.98, Math.max(0.05, vehicles / 12)),
+        pedestrians,
+      },
+    }));
+    dispatch({ type: 'ADD_LOG', payload: `CAMERA TELEMETRY: J1 counted ${vehicles} vehicles and ${pedestrians} pedestrians; signal timing recalculated` });
   };
 
   const handleRunQuantumBenchmark = async () => {
@@ -240,6 +257,7 @@ export default function OperationsCenter() {
     setLoading(true);
     try {
       await incidentService.createIncident(u, v);
+      setBlockedRoads((roads) => [...new Set([...roads, `R_${u}_${v}`])]);
       dispatch({ type: 'ADD_LOG', payload: `INCIDENT INJECTED: Road link ${u} ↔ ${v} reported BLOCKED (Accident/Closure)` });
       // Reroute active corridor if needed
       if (activeCorridor && activeCorridor.path.includes(u) && activeCorridor.path.includes(v)) {
@@ -257,6 +275,7 @@ export default function OperationsCenter() {
         dispatch({ type: 'ADD_LOG', payload: `DYNAMIC REROUTE: Corridor recalculated around incident via bypass J4` });
       }
     } catch (err) {
+      setBlockedRoads((roads) => [...new Set([...roads, `R_${u}_${v}`])]);
       dispatch({ type: 'ADD_LOG', payload: `Incident Injection Event: Road ${u}-${v} hazard registered` });
     } finally {
       setLoading(false);
@@ -274,6 +293,16 @@ export default function OperationsCenter() {
   ].map((junction) => ({
     ...junction,
     ...simulationJunctions[junction.id],
+    greenSeconds: activeCorridor?.path.includes(junction.id)
+      ? 60
+      : simulationJunctions[junction.id].pedestrians >= 8
+        ? 15
+        : Math.round(30 + simulationJunctions[junction.id].density * 30),
+    signalPhase: activeCorridor?.path.includes(junction.id)
+      ? 'EMERGENCY PRIORITY'
+      : simulationJunctions[junction.id].pedestrians >= 8
+        ? 'PEDESTRIAN CLEARANCE'
+        : 'ADAPTIVE GREEN',
   }));
 
   const simulationTotals = networkJunctions.reduce(
@@ -348,6 +377,7 @@ export default function OperationsCenter() {
       {showPreview && (
         <div
           className="glass-card-static"
+          data-theme="demo-preview"
           style={{
             padding: '20px 24px',
             marginBottom: '24px',
@@ -386,7 +416,7 @@ export default function OperationsCenter() {
               ['04', 'Dispatch ambulance', 'Lock the emergency green corridor.'],
               ['05', 'Compare results', 'Run QAOA beside the classical baseline.'],
             ].map(([number, title, description]) => (
-              <div key={number} style={{ background: 'rgba(7, 5, 14, 0.42)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px' }}>
+              <div key={number} className="demo-step-card" style={{ background: 'rgba(7, 5, 14, 0.42)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px' }}>
                 <div style={{ color: '#67e8f9', fontSize: '0.68rem', fontWeight: 800, marginBottom: '6px' }}>{number}</div>
                 <div style={{ color: '#ffffff', fontSize: '0.76rem', fontWeight: 700, marginBottom: '4px' }}>{title}</div>
                 <div style={{ color: '#94a3b8', fontSize: '0.68rem', lineHeight: 1.35 }}>{description}</div>
@@ -451,7 +481,7 @@ export default function OperationsCenter() {
             />
           )}
 
-          {activeSubTab === 'camera' && <CameraDetection />}
+          {activeSubTab === 'camera' && <CameraDetection onTelemetry={handleCameraTelemetry} />}
 
           {/* TAB 1: Network Grid Map */}
           {activeSubTab === 'network' && (
@@ -532,6 +562,9 @@ export default function OperationsCenter() {
                     <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '6px' }}>
                       Queue: <strong>{j.queue} vehicles</strong> / {j.cap} cap • Pedestrians: <strong>{j.pedestrians}</strong>
                     </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '8px', color: j.status.includes('CORRIDOR') ? '#10b981' : j.pedestrians >= 8 ? '#f59e0b' : '#06b6d4', fontSize: '0.68rem', fontWeight: 700 }}>
+                      <span>{j.signalPhase}</span><span>{j.greenSeconds}s GREEN</span>
+                    </div>
                     {/* Progress bar */}
                     <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>
                       <div style={{ width: `${(j.queue / j.cap) * 100}%`, height: '100%', background: j.color }} />
@@ -564,6 +597,13 @@ export default function OperationsCenter() {
                   >
                     Release Corridor
                   </button>
+                </div>
+              )}
+
+              {blockedRoads.length > 0 && (
+                <div style={{ background: 'rgba(244, 63, 94, 0.1)', border: '1px solid rgba(244, 63, 94, 0.35)', borderRadius: '12px', padding: '14px', marginBottom: '16px', color: '#f43f5e', fontSize: '0.78rem' }}>
+                  <strong>ACCIDENT ROUTE BLOCKED</strong><br />
+                  {blockedRoads.join(', ')} excluded from new route calculations. Emergency traffic uses the safest available bypass.
                 </div>
               )}
 

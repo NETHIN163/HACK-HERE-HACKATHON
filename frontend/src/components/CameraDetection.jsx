@@ -6,7 +6,7 @@ import { Camera, Loader2, ScanLine, ShieldCheck, Square } from 'lucide-react';
 const VEHICLE_LABELS = new Set(['car', 'truck', 'bus', 'motorcycle', 'bicycle']);
 const DETECTION_LABELS = ['person', 'car', 'truck', 'bus', 'motorcycle', 'bicycle'];
 
-export default function CameraDetection() {
+export default function CameraDetection({ onTelemetry }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
@@ -20,6 +20,7 @@ export default function CameraDetection() {
   const [peoplePerSecond, setPeoplePerSecond] = useState(0);
   const [crowdStatus, setCrowdStatus] = useState('No crowd signal');
   const peopleWindowRef = useRef({ startedAt: 0, peak: 0 });
+  const telemetryRef = useRef({ at: 0, vehicles: -1, pedestrians: -1 });
 
   useEffect(() => () => {
     if (animationRef.current) cancelAnimationFrame(animationRef.current);
@@ -63,6 +64,12 @@ export default function CameraDetection() {
     });
     const labels = [...new Set(predictions.map((prediction) => prediction.class))];
     setCounts({ vehicles, pedestrians, total: predictions.length, labels, byClass });
+    const telemetryNow = performance.now();
+    const telemetryChanged = vehicles !== telemetryRef.current.vehicles || pedestrians !== telemetryRef.current.pedestrians;
+    if (telemetryChanged && telemetryNow - telemetryRef.current.at >= 500) {
+      telemetryRef.current = { at: telemetryNow, vehicles, pedestrians };
+      onTelemetry?.({ vehicles, pedestrians });
+    }
     const now = performance.now();
     if (!peopleWindowRef.current.startedAt) peopleWindowRef.current.startedAt = now;
     peopleWindowRef.current.peak = Math.max(peopleWindowRef.current.peak, pedestrians);

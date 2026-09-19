@@ -35,4 +35,8 @@ def nearest_open(pickup: str) -> Hospital | None:
 
 
 def hospital_node(hospital_id: str) -> str:
+    if hospital_id in _hospital_node:
+        return _hospital_node[hospital_id]
+    if hospital_id.startswith("J"):
+        return hospital_id
     return _hospital_node.get(hospital_id, "J5")

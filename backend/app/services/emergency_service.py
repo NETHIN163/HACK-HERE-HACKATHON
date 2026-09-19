@@ -66,7 +66,7 @@ def optimize_route(emergency_id: str) -> Route | None:
     em = get(emergency_id)
     if not em or not em.ambulance_id:
         return None
-    dest_node = hs.hospital_node(em.destination)
+    dest_node = em.destination if em.destination.startswith("J") else hs.hospital_node(em.destination)
     cands = routing.candidate_routes(em.pickup, [dest_node], k=2)
     if not cands:
         raise ValueError("No route available")
@@ -104,10 +104,12 @@ class EmergencyService:
     
     def __init__(self, network=None):
         self.network = network
-        self.routing_service = routing
+        if network is not None:
+            from .emergency_routing_service import EmergencyRoutingService
+            self.routing_service = EmergencyRoutingService(network)
+        else:
+            self.routing_service = routing
         self.assignment_service = amb
-        self.green_corridor_service = corridor
-        self.corridor_service = corridor
         from ..optimization.qubo_formulation import QUBOFormulationService
         from ..optimization.qaoa_execution import QAOAExecutionService
         self.qubo_service = QUBOFormulationService(network) if network is not None else None
@@ -118,12 +120,16 @@ class EmergencyService:
             from .emergency_conflict_resolution_service import EmergencyConflictResolutionService
             signal_controller = SignalController(network=network)
             structured_corridor = StructuredCorridorService(signal_controller=signal_controller, network=network)
+            self.green_corridor_service = structured_corridor
+            self.corridor_service = structured_corridor
             self.conflict_service = EmergencyConflictResolutionService(
                 green_corridor_service=structured_corridor,
                 signal_controller=signal_controller,
                 network=network,
             )
         else:
+            self.green_corridor_service = corridor
+            self.corridor_service = corridor
             self.conflict_service = None
         self.assignments: dict[str, EmergencyAssignment] = {}
         self.active_corridors: dict[str, object] = {}
@@ -263,11 +269,19 @@ class EmergencyService:
         if vehicle_id in self.vehicle_views:
             self.vehicle_views[vehicle_id].status = AmbulanceStatus.AVAILABLE
             self.vehicle_views[vehicle_id].assigned_request_id = None
+            if new_location:
+                self.vehicle_views[vehicle_id].current_location = new_location
         return True
     
     def calculate_route(self, origin: str, destination: str) -> EmergencyRoute:
         """Calculate emergency route excluding blocked roads."""
-        # Use the routing service to get candidates
+        # Prefer the injected TrafficNetwork when present; otherwise fall back to the demo graph.
+        if self.network is not None:
+            route = self.routing_service.calculate_emergency_route(origin, destination)
+            if route is None:
+                raise ValueError("No route available")
+            return route
+
         cands = routing.candidate_routes(origin, [destination], k=2)
         if not cands:
             raise ValueError("No route available")

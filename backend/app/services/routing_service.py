@@ -38,7 +38,7 @@ def candidate_routes(origin: str, dest_nodes: list[str], k: int = 2) -> list[dic
         if origin not in g or dest not in g:
             continue
         try:
-            paths = list(itertools.islice(nx.shortest_simple_paths(g, origin, dest, weight=lambda u, v, d: edge_cost(d, w)), k))
+            paths = list(itertools.islice(nx.shortest_simple_paths(g, origin, dest, weight=lambda u, v, d: d.get("travel_time", 0.0) + d.get("signal_delay", 0.0)), k * 8))
         except (nx.NetworkXNoPath, nx.NodeNotFound):
             continue
         for p in paths:
@@ -51,5 +51,5 @@ def candidate_routes(origin: str, dest_nodes: list[str], k: int = 2) -> list[dic
                 t += d.get("travel_time", 0.0) + d.get("signal_delay", 0.0)
                 score += edge_cost(d, w)
             cands.append({"nodes": p, "roads": roads, "distance": dist, "estimated_time": t, "score": score})
-    cands.sort(key=lambda c: c["score"])
+    cands.sort(key=lambda c: (c["estimated_time"], c["score"], c["distance"]))
     return cands[: max(k, 1)]

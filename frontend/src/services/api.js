@@ -167,7 +167,11 @@ export const conflictService = {
 };
 
 export const routingService = {
-  calculateRoute: (origin, destination) => emergencyService.createRequest('TRAUMA', 1, origin, destination),
+  calculateRoute: async (origin, destination) => {
+    const emergency = await emergencyService.createRequest('TRAUMA', 1, origin, destination);
+    const route = await emergencyService.getRoute(emergency.emergency_id);
+    return { ...route, path: route.nodes || route.path || [] };
+  },
 };
 
 export default {

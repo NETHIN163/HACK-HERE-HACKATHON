@@ -25,18 +25,25 @@ def set_weights(w: dict[str, float]) -> dict[str, float]:
 
 def _build_demo() -> nx.DiGraph:
     g = nx.DiGraph()
-    for j in ["J1", "J2", "J3", "J4", "J5"]:
+    for j in ["J1", "J2", "J3", "J4", "J5", "J6"]:
         g.add_node(j)
+
     edges = [
-        ("J1", "J2", {"distance": 4.0, "travel_time": 240.0, "congestion": 0.3, "queue": 2.0, "signal_delay": 20.0, "diversion": 0.1, "safety": 0.0, "blocked": False}),
-        ("J2", "J3", {"distance": 3.0, "travel_time": 200.0, "congestion": 0.5, "queue": 4.0, "signal_delay": 25.0, "diversion": 0.2, "safety": 0.0, "blocked": False}),
-        ("J3", "J5", {"distance": 5.0, "travel_time": 300.0, "congestion": 0.2, "queue": 1.0, "signal_delay": 15.0, "diversion": 0.1, "safety": 0.0, "blocked": False}),
-        ("J1", "J4", {"distance": 6.0, "travel_time": 360.0, "congestion": 0.1, "queue": 0.0, "signal_delay": 10.0, "diversion": 0.0, "safety": 0.0, "blocked": False}),
-        ("J4", "J5", {"distance": 4.0, "travel_time": 260.0, "congestion": 0.2, "queue": 1.0, "signal_delay": 12.0, "diversion": 0.0, "safety": 0.0, "blocked": False}),
-        ("J2", "J4", {"distance": 2.0, "travel_time": 150.0, "congestion": 0.6, "queue": 5.0, "signal_delay": 30.0, "diversion": 0.3, "safety": 0.1, "blocked": False}),
+        ("J1", "J2", {"distance": 500.0, "travel_time": 36.0, "congestion": 0.3, "queue": 2.0, "signal_delay": 20.0, "diversion": 0.1, "safety": 0.0, "blocked": False}),
+        ("J2", "J3", {"distance": 500.0, "travel_time": 36.0, "congestion": 0.5, "queue": 4.0, "signal_delay": 25.0, "diversion": 0.2, "safety": 0.0, "blocked": False}),
+        ("J4", "J5", {"distance": 500.0, "travel_time": 36.0, "congestion": 0.2, "queue": 1.0, "signal_delay": 12.0, "diversion": 0.0, "safety": 0.0, "blocked": False}),
+        ("J5", "J6", {"distance": 500.0, "travel_time": 36.0, "congestion": 0.2, "queue": 1.0, "signal_delay": 15.0, "diversion": 0.1, "safety": 0.0, "blocked": False}),
+        ("J1", "J4", {"distance": 400.0, "travel_time": 29.0, "congestion": 0.1, "queue": 0.0, "signal_delay": 10.0, "diversion": 0.0, "safety": 0.0, "blocked": False}),
+        ("J2", "J5", {"distance": 400.0, "travel_time": 29.0, "congestion": 0.2, "queue": 1.0, "signal_delay": 15.0, "diversion": 0.1, "safety": 0.0, "blocked": False}),
+        ("J3", "J6", {"distance": 400.0, "travel_time": 29.0, "congestion": 0.2, "queue": 1.0, "signal_delay": 15.0, "diversion": 0.1, "safety": 0.0, "blocked": False}),
+        ("J2", "J4", {"distance": 400.0, "travel_time": 29.0, "congestion": 0.6, "queue": 5.0, "signal_delay": 30.0, "diversion": 0.3, "safety": 0.1, "blocked": False}),
     ]
+
     for u, v, d in edges:
         g.add_edge(u, v, **d)
+        reverse = dict(d)
+        g.add_edge(v, u, **reverse)
+
     return g
 
 
