@@ -1,0 +1,8 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+networkx>=3.2
+numpy>=1.26
+qiskit>=1.0
+qiskit-aer>=0.14
+websockets>=12.0
