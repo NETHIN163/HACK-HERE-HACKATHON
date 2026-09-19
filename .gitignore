@@ -3,6 +3,8 @@ node_modules/
 backend/venv/
 backend/env/
 .venv/
+env/
+venv/
 
 # Build outputs
 frontend/dist/

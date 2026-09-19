@@ -1,5 +1,6 @@
 /**
  * Centralized API Client Layer for Q-FLOW Backend
+ * Supports Teammate Backend endpoints (/api/emergencies, /api/ambulances, /api/hospitals, /api/optimization, /api/incidents)
  */
 
 import { API_BASE_URL } from '../utils/constants.js';
@@ -36,7 +37,7 @@ async function request(endpoint, options = {}) {
     }
 
     if (!response.ok) {
-      const errorMessage = (data && data.detail) || response.statusText || 'API Request Failed';
+      const errorMessage = (data && (data.error || data.detail)) || response.statusText || 'API Request Failed';
       throw new ApiError(errorMessage, response.status, data);
     }
 
@@ -50,154 +51,131 @@ async function request(endpoint, options = {}) {
 }
 
 // ==========================================
-// 1. Traffic Services (Backend 1)
+// 1. Traffic & Network Services
 // ==========================================
 export const trafficService = {
-  getTrafficState: () => request('/api/traffic'),
-  getJunctions: () => request('/api/traffic/junctions'),
-  getRoads: () => request('/api/traffic/roads'),
-  getJunction: (junctionId) => request(`/api/junctions/${junctionId}`),
-  getRoad: (roadId) => request(`/api/roads/${roadId}`),
+  getTrafficState: () => request('/api/emergencies'),
+  getJunctions: () => request('/api/emergencies'),
+  getRoads: () => request('/api/emergencies'),
+  healthCheck: () => request('/health'),
 };
 
 // ==========================================
-// 2. Metrics Services (Backend 1)
-// ==========================================
-export const metricsService = {
-  getMetrics: () => request('/api/metrics'),
-};
-
-// ==========================================
-// 3. Incident Services (Backend 1)
+// 2. Incident Services
 // ==========================================
 export const incidentService = {
-  getIncidents: (activeOnly = true) => request(`/api/incidents?active_only=${activeOnly}`),
-  createIncident: (incidentData) =>
+  createIncident: (u, v) =>
     request('/api/incidents', {
       method: 'POST',
-      body: JSON.stringify(incidentData),
+      body: JSON.stringify({ u, v }),
     }),
-  updateIncident: (incidentId, updateData) =>
-    request(`/api/incidents/${incidentId}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updateData),
-    }),
-  triggerSurgeScenario: (surgeData = {}) =>
-    request('/api/scenarios/traffic-surge', {
-      method: 'POST',
-      body: JSON.stringify(surgeData),
-    }),
-  triggerAccidentScenario: (accidentData = {}) =>
-    request('/api/scenarios/accident', {
-      method: 'POST',
-      body: JSON.stringify(accidentData),
-    }),
-  triggerClosureScenario: (closureData = {}) =>
-    request('/api/scenarios/road-closure', {
-      method: 'POST',
-      body: JSON.stringify(closureData),
-    }),
+  getIncidents: () => request('/api/emergencies'),
 };
 
 // ==========================================
-// 4. Optimization Services (Backend 1)
+// 3. Optimization Services (Classical & QAOA Hybrid)
 // ==========================================
+export const metricsService = {
+  getMetrics: () => request('/api/optimization/run'),
+};
+
 export const optimizationService = {
-  getClassicalOptimization: () => request('/api/optimization/classical'),
+  runOptimization: (junctions = ['J1', 'J2', 'J3'], mode = 'HYBRID') =>
+    request('/api/optimization/run', {
+      method: 'POST',
+      body: JSON.stringify({ junctions, mode }),
+    }),
+  getClassicalOptimization: (junctions = ['J1', 'J2', 'J3']) =>
+    request('/api/optimization/classical', {
+      method: 'POST',
+      body: JSON.stringify({ junctions }),
+    }),
+  getHybridOptimization: (junctions = ['J1', 'J2', 'J3']) =>
+    request('/api/optimization/hybrid', {
+      method: 'POST',
+      body: JSON.stringify({ junctions }),
+    }),
+  getOptimizationResult: (rid) => request(`/api/optimization/${rid}`),
 };
 
 // ==========================================
-// 5. Emergency Services (Backend 2)
+// 4. Emergency Services
 // ==========================================
 export const emergencyService = {
-  createRequest: (requestData) =>
-    request('/api/emergency/requests', {
+  createRequest: (type = 'TRAUMA', priority = 1, pickup = 'J1', destination = null) =>
+    request('/api/emergencies', {
       method: 'POST',
-      body: JSON.stringify(requestData),
+      body: JSON.stringify({ type, priority, pickup, destination }),
     }),
-  getRequests: () => request('/api/emergency/requests'),
-  getRequest: (requestId) => request(`/api/emergency/requests/${requestId}`),
+  getRequests: () => request('/api/emergencies'),
+  getRequest: (eid) => request(`/api/emergencies/${eid}`),
+  patchRequest: (eid, fields) =>
+    request(`/api/emergencies/${eid}`, {
+      method: 'PATCH',
+      body: JSON.stringify(fields),
+    }),
+  assignAmbulance: (eid) =>
+    request(`/api/emergencies/${eid}/assign`, {
+      method: 'POST',
+    }),
+  optimizeRoute: (eid) =>
+    request(`/api/emergencies/${eid}/optimize-route`, {
+      method: 'POST',
+    }),
+  rerouteEmergency: (eid) =>
+    request(`/api/emergencies/${eid}/reroute`, {
+      method: 'POST',
+    }),
+  getRoute: (eid) => request(`/api/emergencies/${eid}/route`),
+  getCorridor: (eid) => request(`/api/emergencies/${eid}/corridor`),
 };
 
 // ==========================================
-// 6. Ambulance Services (Backend 2)
+// 5. Ambulance Fleet Services
 // ==========================================
 export const ambulanceService = {
-  getAmbulances: () => request('/api/emergency/ambulances'),
-  registerAmbulance: (ambulanceData) =>
-    request('/api/emergency/ambulances', {
+  getAmbulances: () => request('/api/ambulances'),
+  getAmbulance: (aid) => request(`/api/ambulances/${aid}`),
+  assignToEmergency: (aid, emergencyId) =>
+    request(`/api/ambulances/${aid}/assign`, {
       method: 'POST',
-      body: JSON.stringify(ambulanceData),
-    }),
-  getAmbulance: (vehicleId) => request(`/api/emergency/ambulances/${vehicleId}`),
-  createAssignment: (assignmentData) =>
-    request('/api/emergency/assignments', {
-      method: 'POST',
-      body: JSON.stringify(assignmentData),
-    }),
-  getAssignment: (assignmentId) => request(`/api/emergency/assignments/${assignmentId}`),
-  releaseAssignment: (assignmentId, releaseData = {}) =>
-    request(`/api/emergency/assignments/${assignmentId}/release`, {
-      method: 'POST',
-      body: JSON.stringify(releaseData),
+      body: JSON.stringify({ emergency_id: emergencyId }),
     }),
 };
 
 // ==========================================
-// 7. Route & QUBO/QAOA Services (Backend 2)
+// 6. Hospital Services
 // ==========================================
-export const routingService = {
-  calculateRoute: (origin, destination) =>
-    request('/api/emergency/routes', {
-      method: 'POST',
-      body: JSON.stringify({ origin, destination }),
-    }),
-  runQuantumOptimization: (payload) =>
-    request('/api/emergency/optimize', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+export const hospitalService = {
+  getHospitals: () => request('/api/hospitals'),
+  getHospital: (hid) => request(`/api/hospitals/${hid}`),
 };
 
 // ==========================================
-// 8. Corridor Services (Backend 2)
-// ==========================================
-export const corridorService = {
-  planCorridor: (payload) =>
-    request('/api/emergency/corridors/plan', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  activateCorridor: (requestId) =>
-    request(`/api/emergency/corridors/${requestId}/activate`, {
-      method: 'POST',
-    }),
-  releaseCorridor: (requestId) =>
-    request(`/api/emergency/corridors/${requestId}/release`, {
-      method: 'POST',
-    }),
-  getActiveCorridors: () => request('/api/emergency/corridors/active'),
-};
-
-// ==========================================
-// 9. Conflict Resolution Services (Backend 2)
+// 7. Conflict Resolution Services
 // ==========================================
 export const conflictService = {
-  resolveConflicts: (assignmentIds) =>
-    request('/api/emergency/conflicts/resolve', {
+  resolveConflict: (junction, ambulanceA, ambulanceB) =>
+    request('/api/conflicts/resolve', {
       method: 'POST',
-      body: JSON.stringify({ assignment_ids: assignmentIds }),
+      body: JSON.stringify({
+        junction,
+        ambulance_a: ambulanceA,
+        ambulance_b: ambulanceB,
+      }),
     }),
+};
+
+export const routingService = {
+  calculateRoute: (origin, destination) => emergencyService.createRequest('TRAUMA', 1, origin, destination),
 };
 
 export default {
   traffic: trafficService,
-  metrics: metricsService,
   incidents: incidentService,
   optimization: optimizationService,
   emergency: emergencyService,
   ambulances: ambulanceService,
-  routing: routingService,
-  corridor: corridorService,
+  hospitals: hospitalService,
   conflict: conflictService,
 };

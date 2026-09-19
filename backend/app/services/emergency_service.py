@@ -1,156 +1,96 @@
-from typing import Dict, List, Optional
-from app.models.emergency import (
-    AmbulanceStatus,
-    EmergencyAssignment,
-    EmergencyPriority,
-    EmergencyRequest,
-    EmergencyRoute,
-    EmergencyVehicle,
-    RequestStatus,
-)
-from app.models.emergency_conflict import EmergencyConflictResult
-from app.models.green_corridor import GreenCorridorPlan
-from app.models.qubo import QAOAResult, QUBOFormulation
-from app.optimization.qaoa_execution import QAOAExecutionService
-from app.optimization.qubo_formulation import QUBOFormulationService
-from app.services.ambulance_assignment_service import AmbulanceAssignmentService
-from app.services.emergency_conflict_resolution_service import EmergencyConflictResolutionService
-from app.services.emergency_routing_service import EmergencyRoutingService
-from app.services.green_corridor_service import GreenCorridorService
-from app.services.traffic_service import traffic_service
-from app.simulation.network import TrafficNetwork
-from app.simulation.signal_engine import SignalController
-from app.websocket.events import broadcast_event
+"""Emergency CRUD + assignment orchestration."""
+import uuid
+from ..models.emergency import Emergency, EmergencyStatus
+from ..models.route import Route, RouteStatus
+from . import ambulance_service as amb, events
+from . import hospital_service as hosp
+from . import routing_service as routing
+from . import corridor_service as corridor
+
+_emergencies: dict[str, Emergency] = {}
+_routes: dict[str, Route] = {}
 
 
-class EmergencyService:
-    """
-    Central Orchestration Service for Backend Developer 2.
-    Integrates Emergency Routing, Ambulance Assignment, QUBO Formulation, QAOA Execution,
-    Green Corridor Management, and Conflict Resolution with real-time WebSocket broadcasts.
-    """
-
-    def __init__(self, network: Optional[TrafficNetwork] = None):
-        self.network = network or traffic_service.network
-        self.signal_controller = SignalController(network=self.network)
-        
-        # Instantiate services
-        self.routing_service = EmergencyRoutingService(network=self.network)
-        self.assignment_service = AmbulanceAssignmentService(routing_service=self.routing_service)
-        self.qubo_service = QUBOFormulationService(network=self.network)
-        self.qaoa_service = QAOAExecutionService(method="SIMULATED_QAOA")
-        self.green_corridor_service = GreenCorridorService(
-            signal_controller=self.signal_controller,
-            network=self.network,
-        )
-        self.conflict_service = EmergencyConflictResolutionService(
-            green_corridor_service=self.green_corridor_service,
-            signal_controller=self.signal_controller,
-            network=self.network,
-        )
-
-    # 1. Emergency Requests
-    def create_request(
-        self,
-        request_id: str,
-        origin: str,
-        destination: str,
-        priority: EmergencyPriority = EmergencyPriority.HIGH,
-    ) -> EmergencyRequest:
-        req = self.routing_service.create_emergency_request(
-            request_id=request_id,
-            origin=origin,
-            destination=destination,
-            priority=priority,
-        )
-        broadcast_event("emergency.created", f"request:{request_id}", req.model_dump())
-        return req
-
-    def get_request(self, request_id: str) -> Optional[EmergencyRequest]:
-        return self.routing_service.requests.get(request_id)
-
-    def get_all_requests(self) -> List[EmergencyRequest]:
-        return list(self.routing_service.requests.values())
-
-    # 2. Ambulances
-    def register_ambulance(self, vehicle_id: str, current_location: str) -> EmergencyVehicle:
-        veh = self.routing_service.register_ambulance(vehicle_id, current_location)
-        broadcast_event("ambulance.registered", f"ambulance:{vehicle_id}", veh.model_dump())
-        return veh
-
-    def get_ambulance(self, vehicle_id: str) -> Optional[EmergencyVehicle]:
-        return self.routing_service.vehicles.get(vehicle_id)
-
-    def get_all_ambulances(self) -> List[EmergencyVehicle]:
-        return list(self.routing_service.vehicles.values())
-
-    # 3. Emergency Assignment
-    def assign_ambulance(self, request_id: str, vehicle_id: Optional[str] = None) -> EmergencyAssignment:
-        assignment = self.assignment_service.assign_ambulance_to_request(request_id, target_vehicle_id=vehicle_id)
-        if not assignment:
-            raise ValueError(f"No available ambulance or valid route found for request '{request_id}'.")
-
-        broadcast_event("ambulance.assigned", f"request:{request_id}", assignment.model_dump())
-        broadcast_event("emergency.route.updated", f"route:{assignment.route.route_id}", assignment.route.model_dump())
-        return assignment
-
-    def release_ambulance(self, vehicle_id: str, new_location: Optional[str] = None) -> bool:
-        released = self.assignment_service.release_ambulance(vehicle_id, new_location)
-        if released:
-            broadcast_event("ambulance.released", f"ambulance:{vehicle_id}", {"vehicle_id": vehicle_id, "new_location": new_location})
-        return released
-
-    def get_assignment(self, assignment_id: str) -> Optional[EmergencyAssignment]:
-        return self.routing_service.assignments.get(assignment_id)
-
-    # 4. Emergency Routing
-    def calculate_route(self, origin: str, destination: str) -> EmergencyRoute:
-        route = self.routing_service.calculate_emergency_route(origin, destination)
-        if not route:
-            raise ValueError(f"No available emergency route between '{origin}' and '{destination}'.")
-        broadcast_event("emergency.route.updated", f"route:{route.route_id}", route.model_dump())
-        return route
-
-    # 5. QUBO & QAOA Optimization
-    def run_qaoa_route_optimization(self, origin: str, destination: str) -> QAOAResult:
-        formulation = self.qubo_service.build_qubo_for_request(origin, destination)
-        result = self.qaoa_service.execute_qaoa(formulation)
-        if result.is_valid and result.selected_route:
-            broadcast_event("emergency.route.updated", f"route:{result.selected_route.route_id}", result.selected_route.model_dump())
-        return result
-
-    # 6. Green Corridor
-    def plan_corridor(self, assignment_id: str) -> GreenCorridorPlan:
-        asg = self.get_assignment(assignment_id)
-        if not asg:
-            raise ValueError(f"Assignment '{assignment_id}' not found.")
-        plan = self.green_corridor_service.plan_corridor(asg)
-        broadcast_event("green_corridor.planned", f"corridor:{plan.corridor_id}", plan.model_dump())
-        return plan
-
-    def activate_corridor(self, request_id: str) -> GreenCorridorPlan:
-        plan = self.green_corridor_service.activate_corridor(request_id)
-        broadcast_event("green_corridor.activated", f"corridor:{plan.corridor_id}", plan.model_dump())
-        return plan
-
-    def release_corridor(self, request_id: str) -> GreenCorridorPlan:
-        plan = self.green_corridor_service.release_corridor(request_id)
-        broadcast_event("green_corridor.released", f"corridor:{plan.corridor_id}", plan.model_dump())
-        return plan
-
-    def get_active_corridors(self) -> List[GreenCorridorPlan]:
-        return list(self.green_corridor_service.active_plans.values())
-
-    # 7. Emergency Conflict Resolution
-    def resolve_conflicts(self) -> EmergencyConflictResult:
-        active_assignments = list(self.routing_service.assignments.values())
-        result = self.conflict_service.resolve_conflicts(active_assignments, self.routing_service.requests)
-        
-        if result.status == "RESOLVED" and result.overlapping_junctions:
-            broadcast_event("emergency.conflict.detected", "network", result.model_dump())
-            broadcast_event("emergency.conflict.resolved", "network", result.model_dump())
-        return result
+def create(type: str, priority: int, pickup: str, destination: str | None = None) -> Emergency:
+    eid = f"E-{uuid.uuid4().hex[:6].upper()}"
+    em = Emergency(emergency_id=eid, type=type, priority=priority, pickup=pickup, destination=destination or "H1")
+    _emergencies[eid] = em
+    events.emit("emergency.created", em.model_dump())
+    # auto-assign ambulance + hospital + initial route
+    assign(eid)
+    return em
 
 
-# Shared global instance
-emergency_service = EmergencyService()
+def get(emergency_id: str) -> Emergency | None:
+    return _emergencies.get(emergency_id)
+
+
+def list_all() -> list[Emergency]:
+    return list(_emergencies.values())
+
+
+def patch(emergency_id: str, fields: dict) -> Emergency | None:
+    em = get(emergency_id)
+    if not em:
+        return None
+    for k, v in fields.items():
+        if hasattr(em, k):
+            setattr(em, k, v)
+    events.emit("emergency.updated", em.model_dump())
+    return em
+
+
+def assign(emergency_id: str) -> Emergency | None:
+    em = get(emergency_id)
+    if not em:
+        return None
+    a = amb.nearest_available(em.pickup)
+    if not a:
+        raise ValueError("No ambulance available")
+    h = hosp.nearest_open(em.pickup)
+    if not h:
+        raise ValueError("Hospital unavailable")
+    em.hospital_id = h.hospital_id
+    em.destination = h.hospital_id
+    amb.assign(a.ambulance_id, emergency_id)
+    em.ambulance_id = a.ambulance_id
+    em.status = EmergencyStatus.ASSIGNED
+    optimize_route(emergency_id)
+    events.emit("emergency.updated", em.model_dump())
+    return em
+
+
+def optimize_route(emergency_id: str) -> Route | None:
+    from . import hospital_service as hs
+    em = get(emergency_id)
+    if not em or not em.ambulance_id:
+        return None
+    dest_node = hs.hospital_node(em.destination)
+    cands = routing.candidate_routes(em.pickup, [dest_node], k=2)
+    if not cands:
+        raise ValueError("No route available")
+    best = cands[0]
+    rid = f"R-{uuid.uuid4().hex[:6].upper()}"
+    route = Route(route_id=rid, emergency_id=emergency_id, roads=best["roads"], nodes=best["nodes"],
+                  distance=best["distance"], estimated_time=best["estimated_time"], score=best["score"])
+    _routes[rid] = route
+    em.route_id = rid
+    em.eta_seconds = best["estimated_time"]
+    em.status = EmergencyStatus.EN_ROUTE
+    corridor.generate(emergency_id, best["nodes"])
+    events.emit("route.updated", route.model_dump())
+    return route
+
+
+def active_route(emergency_id: str) -> Route | None:
+    em = get(emergency_id)
+    if not em or not em.route_id:
+        return None
+    return _routes.get(em.route_id)
+
+
+def invalidate_route(route_id: str) -> None:
+    r = _routes.get(route_id)
+    if r:
+        r.status = RouteStatus.INVALIDATED
+        events.emit("route.blocked", r.model_dump())

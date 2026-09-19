@@ -1,17 +1,16 @@
 /**
- * Phase 2 Integration Verification Script
+ * Phase 2 Integration Verification Script for Teammate Backend
  * Validates API layer, WebSocket event parsing, state reducer, and error handling.
  */
 
 import { EVENT_TYPES, INITIAL_METRICS } from './utils/constants.js';
 import {
   trafficService,
-  metricsService,
   incidentService,
   emergencyService,
   ambulanceService,
-  routingService,
-  corridorService,
+  hospitalService,
+  optimizationService,
   conflictService,
 } from './services/api.js';
 import wsManager, { WS_STATUS } from './services/websocket.js';
@@ -25,20 +24,19 @@ function assert(condition, message) {
   }
 }
 
-console.log('--- Starting Phase 2 Frontend Verification ---');
+console.log('--- Starting Phase 2 Frontend Verification (Teammate Backend Integration) ---');
 
 // 1. Verify API Services export structure
 assert(typeof trafficService.getTrafficState === 'function', 'trafficService.getTrafficState exists');
-assert(typeof trafficService.getJunctions === 'function', 'trafficService.getJunctions exists');
-assert(typeof trafficService.getRoads === 'function', 'trafficService.getRoads exists');
-assert(typeof metricsService.getMetrics === 'function', 'metricsService.getMetrics exists');
-assert(typeof incidentService.getIncidents === 'function', 'incidentService.getIncidents exists');
+assert(typeof trafficService.healthCheck === 'function', 'trafficService.healthCheck exists');
 assert(typeof incidentService.createIncident === 'function', 'incidentService.createIncident exists');
 assert(typeof emergencyService.createRequest === 'function', 'emergencyService.createRequest exists');
+assert(typeof emergencyService.optimizeRoute === 'function', 'emergencyService.optimizeRoute exists');
+assert(typeof emergencyService.rerouteEmergency === 'function', 'emergencyService.rerouteEmergency exists');
 assert(typeof ambulanceService.getAmbulances === 'function', 'ambulanceService.getAmbulances exists');
-assert(typeof routingService.calculateRoute === 'function', 'routingService.calculateRoute exists');
-assert(typeof corridorService.planCorridor === 'function', 'corridorService.planCorridor exists');
-assert(typeof conflictService.resolveConflicts === 'function', 'conflictService.resolveConflicts exists');
+assert(typeof hospitalService.getHospitals === 'function', 'hospitalService.getHospitals exists');
+assert(typeof optimizationService.runOptimization === 'function', 'optimizationService.runOptimization exists');
+assert(typeof conflictService.resolveConflict === 'function', 'conflictService.resolveConflict exists');
 
 // 2. Verify WebSocket Manager status subscription & state
 let statusChanges = [];
