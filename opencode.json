@@ -1,0 +1,28 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "featherless/qwen3-coder-480b",
+  "providers": {
+    "featherless": {
+      "name": "Featherless",
+      "env": ["FEATHERLESS_API_KEY"],
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "https://api.featherless.ai/v1"
+      },
+      "models": {
+        "qwen3-coder-480b": {
+          "modelID": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+          "name": "Qwen3 Coder 480B"
+        },
+        "qwen25-coder-32b": {
+          "modelID": "Qwen/Qwen2.5-Coder-32B-Instruct",
+          "name": "Qwen2.5 Coder 32B"
+        },
+        "qwen3-coder-30b": {
+          "modelID": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+          "name": "Qwen3 Coder 30B"
+        }
+      }
+    }
+  }
+}
