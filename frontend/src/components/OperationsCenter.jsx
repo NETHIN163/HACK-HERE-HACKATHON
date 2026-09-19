@@ -16,7 +16,12 @@ import {
   Sliders,
   HelpCircle,
   X,
+  Map,
+  Camera,
 } from 'lucide-react';
+import LiveMap from './LiveMap';
+import CameraDetection from './CameraDetection';
+import AmbulanceTracking from './AmbulanceTracking';
 import ConnectionStatus from './ConnectionStatus';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useWebSocket } from '../context/WebSocketContext';
@@ -282,10 +287,10 @@ export default function OperationsCenter() {
   const averageDensity = Math.round((simulationTotals.density / networkJunctions.length) * 100);
 
   return (
-    <div style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div className="operations-center" style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
       {/* Top Mission Control Header */}
       <div
-        className="glass-card-static"
+        className="glass-card-static operations-header"
         style={{
           padding: '24px 32px',
           marginBottom: '28px',
@@ -392,12 +397,15 @@ export default function OperationsCenter() {
       )}
 
       {/* Sub-tab Navigation */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+      <div className="operations-tabs" style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
         {[
-          { id: 'network', label: '1. Traffic Network Grid (6 Junctions)', icon: Activity },
-          { id: 'dispatch', label: '2. Emergency Dispatch & Corridor', icon: Truck },
-          { id: 'quantum', label: '3. QUBO vs Classical Benchmark', icon: Cpu },
-          { id: 'incidents', label: '4. Dynamic Incident Injection', icon: AlertTriangle },
+          { id: 'network', label: 'Traffic optimization', icon: Activity },
+          { id: 'map', label: 'Live map', icon: Map },
+          { id: 'ambulance', label: 'Ambulance tracking', icon: Truck },
+          { id: 'camera', label: 'Camera AI', icon: Camera },
+          { id: 'dispatch', label: 'Emergency dispatch', icon: Truck },
+          { id: 'quantum', label: 'QAOA benchmark', icon: Cpu },
+          { id: 'incidents', label: 'Incident lab', icon: AlertTriangle },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -428,9 +436,23 @@ export default function OperationsCenter() {
       </div>
 
       {/* Main Grid View */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: ['map', 'ambulance', 'camera'].includes(activeSubTab) ? '1fr' : '1.8fr 1.2fr', gap: '24px' }}>
         {/* Left Column: Interactive Module based on active tab */}
         <div>
+          {activeSubTab === 'map' && (
+            <LiveMap activeCorridor={activeCorridor} vehicleTracker={vehicleTracker} />
+          )}
+
+          {activeSubTab === 'ambulance' && (
+            <AmbulanceTracking
+              vehicleTracker={vehicleTracker}
+              activeCorridor={activeCorridor}
+              onDispatch={handleDispatchEmergency}
+            />
+          )}
+
+          {activeSubTab === 'camera' && <CameraDetection />}
+
           {/* TAB 1: Network Grid Map */}
           {activeSubTab === 'network' && (
             <div className="glass-card-static" style={{ padding: '24px', borderRadius: '20px' }}>
@@ -795,7 +817,7 @@ export default function OperationsCenter() {
         </div>
 
         {/* Right Column: Telemetry & Event Log Stream */}
-        <div>
+        <div style={{ display: ['map', 'ambulance', 'camera'].includes(activeSubTab) ? 'none' : 'block' }}>
           <div className="glass-card-static" style={{ padding: '24px', borderRadius: '20px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
