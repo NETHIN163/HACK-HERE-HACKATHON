@@ -1,6 +1,6 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
-from .api import emergencies, ambulances, hospitals, routes, optimization
+from .api import emergencies, ambulances, hospitals, routes, optimization, emergency
 from .services import events
 
 app = FastAPI(title="Q-FLOW Backend 2 — Emergency & Quantum")
@@ -16,6 +16,7 @@ app.include_router(ambulances.router)
 app.include_router(hospitals.router)
 app.include_router(routes.router)
 app.include_router(optimization.router)
+app.include_router(emergency.router)
 
 
 @app.get("/health")

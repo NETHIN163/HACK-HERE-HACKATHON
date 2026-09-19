@@ -1,6 +1,7 @@
 import time
 from typing import Dict, List, Optional, Tuple
-from app.models.emergency import EmergencyRoute, RouteStatus
+from app.models.emergency import EmergencyRoute
+from app.models.route import RouteStatus
 from app.models.qubo import QUBOFormulation, QUBOVariable
 from app.models.road import RoadStatus
 from app.simulation.network import TrafficNetwork
