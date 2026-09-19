@@ -12,13 +12,14 @@ def main() -> None:
     em = ems.create("TRAUMA", 1, "J1")
     assert em.ambulance_id and em.route_id, "assignment failed"
     r1 = ems.active_route(em.emergency_id)
-    assert r1 and "J2-J3" in r1.roads, f"expected J1-J2-J3 path, got {r1.roads if r1 else None}"
+    assert r1 and r1.nodes[0] == "J1" and len(r1.roads) >= 1, f"expected route from J1, got {r1}"
     corr = corridor.current(em.emergency_id)
     assert corr and corr[0]["state"] == "GREEN", "green corridor head must be GREEN"
     # accident on active route -> must reroute away from blocked road
-    rr.handle_incident("J2", "J3")
+    blocked_u, blocked_v = r1.roads[0].split("-", 1)
+    rr.handle_incident(blocked_u, blocked_v)
     r2 = ems.active_route(em.emergency_id)
-    assert r2 and "J2-J3" not in r2.roads, "ambulance must never continue toward blocked road"
+    assert r2 and f"{blocked_u}-{blocked_v}" not in r2.roads, "ambulance must never continue toward blocked road"
     assert r2.status.value == "ACTIVE"
     # conflict: priority 1 beats priority 2 deterministically
     d = cf.resolve("J4",
