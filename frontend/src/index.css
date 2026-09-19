@@ -1,0 +1,139 @@
+/* Q-FLOW Modern Dark Glassmorphic Design System Tokens */
+:root {
+  /* Color Palette */
+  --bg-primary: #0b0f19;
+  --bg-secondary: #111827;
+  --bg-card: rgba(17, 24, 39, 0.75);
+  --bg-card-hover: rgba(31, 41, 55, 0.85);
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(59, 130, 246, 0.3);
+  
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+  
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-purple: #8b5cf6;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  
+  /* Status Colors */
+  --status-open: #10b981;
+  --status-congested: #f59e0b;
+  --status-blocked: #ef4444;
+  --status-closed: #dc2626;
+  --status-corridor: #10b981;
+  --status-active: #3b82f6;
+  
+  /* Fonts */
+  --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Shadows & Glass */
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-backdrop: blur(12px);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: var(--glass-backdrop);
+  -webkit-backdrop-filter: var(--glass-backdrop);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: var(--shadow-glass);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-connected {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--status-open);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-disconnected {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--status-blocked);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-connecting {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--status-congested);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.dot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-connected { background-color: var(--status-open); animation: pulse-dot 2s infinite; }
+.dot-disconnected { background-color: var(--status-blocked); }
+.dot-connecting { background-color: var(--status-congested); animation: pulse-dot 1s infinite; }
