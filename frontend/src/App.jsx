@@ -16,8 +16,8 @@ export default function App() {
   const [activeView, setActiveView] = useState('landing'); // 'landing' or 'ops'
 
   return (
-    <div style={{ position: 'relative', minHeight: '100vh', backgroundColor: '#0b0813', color: '#f8fafc', overflow: 'hidden' }}>
-      {/* AR / VR Spatial Perspective Grid & Visor Scanlines */}
+    <div style={{ position: 'relative', minHeight: '100vh', backgroundColor: '#fbfbfd', color: '#1d1d1f', overflow: 'hidden' }}>
+      {/* AR / VR Spatial Perspective Grid & Visor Scanlines (Apple Light Mesh) */}
       <div className="ar-scanline" />
       <div className="bg-mesh-container ar-vr-perspective">
         <div className="ar-grid-3d" />

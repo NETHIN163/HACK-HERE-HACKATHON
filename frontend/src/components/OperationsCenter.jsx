@@ -5,6 +5,7 @@ import {
   Zap,
   AlertTriangle,
   Play,
+  Pause,
   RefreshCw,
   Truck,
   CheckCircle2,
@@ -33,6 +34,17 @@ export default function OperationsCenter() {
 
   const [loading, setLoading] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState('network'); // 'network', 'dispatch', 'quantum', 'incidents'
+  const [simulationRunning, setSimulationRunning] = useState(true);
+  const [simulationScenario, setSimulationScenario] = useState('normal');
+  const [simulationTick, setSimulationTick] = useState(0);
+  const [simulationJunctions, setSimulationJunctions] = useState({
+    J1: { queue: 3, density: 0.22, pedestrians: 4 },
+    J2: { queue: 18, density: 0.74, pedestrians: 9 },
+    J3: { queue: 5, density: 0.28, pedestrians: 6 },
+    J4: { queue: 1, density: 0.12, pedestrians: 2 },
+    J5: { queue: 8, density: 0.46, pedestrians: 7 },
+    J6: { queue: 4, density: 0.31, pedestrians: 3 },
+  });
 
   // Emergency Dispatch Form State
   const [pickupJunction, setPickupJunction] = useState('J1');
@@ -101,6 +113,28 @@ export default function OperationsCenter() {
   useEffect(() => {
     refreshNetworkState();
   }, []);
+
+  useEffect(() => {
+    if (!simulationRunning) return undefined;
+
+    const timer = setInterval(() => {
+      setSimulationTick((tick) => tick + 1);
+      setSimulationJunctions((previous) => {
+        const scenarioBoost = simulationScenario === 'congestion' ? 6 : simulationScenario === 'incident' ? 3 : 0;
+        return Object.fromEntries(
+          Object.entries(previous).map(([id, values]) => {
+            const wave = Math.sin((simulationTick + id.charCodeAt(1)) / 2) * 2;
+            const queue = Math.max(0, Math.min(30, Math.round(values.queue + wave + scenarioBoost - 2)));
+            const density = Math.max(0.05, Math.min(0.98, values.density + wave / 100 + scenarioBoost / 100));
+            const pedestrians = Math.max(0, Math.min(30, Math.round(values.pedestrians + Math.cos(simulationTick + id.length) * 2)));
+            return [id, { queue, density, pedestrians }];
+          })
+        );
+      });
+    }, 1200);
+
+    return () => clearInterval(timer);
+  }, [simulationRunning, simulationScenario, simulationTick]);
 
   const refreshNetworkState = async () => {
     setLoading(true);
@@ -223,13 +257,26 @@ export default function OperationsCenter() {
 
   // Junction network data (4-8 junctions)
   const networkJunctions = [
-    { id: 'J1', name: 'North Hub (J1)', status: activeCorridor?.path.includes('J1') ? 'GREEN CORRIDOR' : 'ADAPTIVE GREEN', queue: 3, cap: 30, color: '#10b981' },
-    { id: 'J2', name: 'Expressway (J2)', status: activeCorridor?.path.includes('J2') ? 'GREEN CORRIDOR' : 'CONGESTED', queue: 18, cap: 25, color: activeCorridor?.path.includes('J2') ? '#10b981' : '#f59e0b' },
-    { id: 'J3', name: 'Metro Hub (J3)', status: activeCorridor?.path.includes('J3') ? 'GREEN CORRIDOR' : 'ADAPTIVE GREEN', queue: 5, cap: 35, color: '#10b981' },
-    { id: 'J4', name: 'Trauma Center (J4)', status: 'PRIORITY LOCK', queue: 1, cap: 40, color: '#a78bfa' },
-    { id: 'J5', name: 'West Avenue (J5)', status: 'ADAPTIVE', queue: 8, cap: 25, color: '#06b6d4' },
-    { id: 'J6', name: 'South Bypass (J6)', status: 'OPTIMIZED', queue: 4, cap: 30, color: '#06b6d4' },
-  ];
+    { id: 'J1', name: 'North Hub (J1)', status: activeCorridor?.path.includes('J1') ? 'GREEN CORRIDOR' : 'ADAPTIVE GREEN', cap: 30, color: '#10b981' },
+    { id: 'J2', name: 'Expressway (J2)', status: activeCorridor?.path.includes('J2') ? 'GREEN CORRIDOR' : 'CONGESTED', cap: 25, color: activeCorridor?.path.includes('J2') ? '#10b981' : '#f59e0b' },
+    { id: 'J3', name: 'Metro Hub (J3)', status: activeCorridor?.path.includes('J3') ? 'GREEN CORRIDOR' : 'ADAPTIVE GREEN', cap: 35, color: '#10b981' },
+    { id: 'J4', name: 'Trauma Center (J4)', status: 'PRIORITY LOCK', cap: 40, color: '#a78bfa' },
+    { id: 'J5', name: 'West Avenue (J5)', status: 'ADAPTIVE', cap: 25, color: '#06b6d4' },
+    { id: 'J6', name: 'South Bypass (J6)', status: 'OPTIMIZED', cap: 30, color: '#06b6d4' },
+  ].map((junction) => ({
+    ...junction,
+    ...simulationJunctions[junction.id],
+  }));
+
+  const simulationTotals = networkJunctions.reduce(
+    (totals, junction) => ({
+      queue: totals.queue + junction.queue,
+      pedestrians: totals.pedestrians + junction.pedestrians,
+      density: totals.density + junction.density,
+    }),
+    { queue: 0, pedestrians: 0, density: 0 }
+  );
+  const averageDensity = Math.round((simulationTotals.density / networkJunctions.length) * 100);
 
   return (
     <div style={{ padding: '32px', maxWidth: '1400px', margin: '0 auto' }}>
@@ -349,6 +396,43 @@ export default function OperationsCenter() {
                 </div>
               </div>
 
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center', marginBottom: '18px', padding: '12px', background: 'rgba(6, 182, 212, 0.07)', border: '1px solid rgba(6, 182, 212, 0.18)', borderRadius: '12px' }}>
+                <button
+                  className="btn-orchid-primary"
+                  style={{ padding: '8px 14px', fontSize: '0.78rem' }}
+                  onClick={() => setSimulationRunning((running) => !running)}
+                >
+                  {simulationRunning ? <Pause size={14} /> : <Play size={14} />}
+                  <span>{simulationRunning ? 'Pause Simulation' : 'Resume Simulation'}</span>
+                </button>
+                {['normal', 'congestion', 'incident'].map((scenario) => (
+                  <button
+                    key={scenario}
+                    className="btn-orchid-secondary"
+                    style={{ padding: '8px 12px', fontSize: '0.75rem', textTransform: 'capitalize', borderColor: simulationScenario === scenario ? '#06b6d4' : undefined }}
+                    onClick={() => setSimulationScenario(scenario)}
+                  >
+                    {scenario}
+                  </button>
+                ))}
+                <span style={{ marginLeft: 'auto', color: '#67e8f9', fontSize: '0.72rem', fontWeight: 700 }}>
+                  TICK {simulationTick.toString().padStart(3, '0')} • {simulationRunning ? 'LIVE' : 'PAUSED'}
+                </span>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '20px' }}>
+                {[
+                  { label: 'Network Queue', value: `${simulationTotals.queue} vehicles`, color: '#f59e0b' },
+                  { label: 'Vehicle Density', value: `${averageDensity}%`, color: '#06b6d4' },
+                  { label: 'Pedestrians Detected', value: simulationTotals.pedestrians, color: '#a78bfa' },
+                ].map((metric) => (
+                  <div key={metric.label} style={{ background: 'rgba(255,255,255,0.04)', padding: '10px 12px', borderRadius: '8px' }}>
+                    <div style={{ color: '#94a3b8', fontSize: '0.7rem' }}>{metric.label}</div>
+                    <strong style={{ color: metric.color, fontSize: '1rem' }}>{metric.value}</strong>
+                  </div>
+                ))}
+              </div>
+
               {/* Junction Cards Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '20px' }}>
                 {networkJunctions.map((j) => (
@@ -370,7 +454,7 @@ export default function OperationsCenter() {
                       {j.status}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#cbd5e1', marginBottom: '6px' }}>
-                      Queue: <strong>{j.queue} vehicles</strong> / {j.cap} cap
+                      Queue: <strong>{j.queue} vehicles</strong> / {j.cap} cap • Pedestrians: <strong>{j.pedestrians}</strong>
                     </div>
                     {/* Progress bar */}
                     <div style={{ width: '100%', height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '3px', overflow: 'hidden' }}>

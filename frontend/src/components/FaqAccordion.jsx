@@ -34,7 +34,7 @@ export default function FaqAccordion() {
           <HelpCircle size={14} />
           <span>Got Questions?</span>
         </div>
-        <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: '#f8fafc' }}>
+        <h2 style={{ fontSize: '2.4rem', fontWeight: 800, color: '#1d1d1f' }}>
           Frequently Asked Questions
         </h2>
       </div>
@@ -49,21 +49,21 @@ export default function FaqAccordion() {
               style={{
                 borderRadius: '16px',
                 padding: '20px 24px',
-                border: isOpen ? '1px solid rgba(139, 92, 246, 0.4)' : '1px solid rgba(255, 255, 255, 0.08)',
+                border: isOpen ? '1px solid rgba(0, 113, 227, 0.3)' : '1px solid rgba(0, 0, 0, 0.08)',
                 cursor: 'pointer',
                 transition: 'all 0.25s ease',
               }}
               onClick={() => setOpenIdx(isOpen ? null : idx)}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>{item.q}</h3>
-                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  {isOpen ? <Minus size={16} color="#a78bfa" /> : <Plus size={16} color="#cbd5e1" />}
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#1d1d1f' }}>{item.q}</h3>
+                <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(0, 0, 0, 0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {isOpen ? <Minus size={16} color="#0071e3" /> : <Plus size={16} color="#515154" />}
                 </div>
               </div>
 
               {isOpen && (
-                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.06)', color: '#515154', fontSize: '0.9rem', lineHeight: 1.6 }}>
                   {item.a}
                 </div>
               )}

@@ -10,12 +10,13 @@ export default function Navbar({ activeView, setActiveView }) {
         zIndex: 100,
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        backgroundColor: 'rgba(11, 8, 19, 0.75)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
         padding: '16px 32px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.03)',
       }}
     >
       {/* Brand Logo */}
@@ -28,11 +29,11 @@ export default function Navbar({ activeView, setActiveView }) {
             width: '36px',
             height: '36px',
             borderRadius: '10px',
-            background: 'linear-gradient(135deg, #8b5cf6, #06b6d4)',
+            background: 'linear-gradient(135deg, #0071e3, #6e56cf)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(139, 92, 246, 0.5)',
+            boxShadow: '0 4px 14px rgba(0, 113, 227, 0.3)',
           }}
         >
           <Cpu size={20} color="#ffffff" />
@@ -43,7 +44,7 @@ export default function Navbar({ activeView, setActiveView }) {
               fontSize: '1.4rem',
               fontWeight: 800,
               letterSpacing: '-0.5px',
-              color: '#ffffff',
+              color: '#1d1d1f',
             }}
           >
             Q-FLOW
@@ -55,9 +56,9 @@ export default function Navbar({ activeView, setActiveView }) {
               fontWeight: 700,
               padding: '2px 6px',
               borderRadius: '4px',
-              background: 'rgba(6, 182, 212, 0.15)',
-              color: '#67e8f9',
-              border: '1px solid rgba(6, 182, 212, 0.3)',
+              background: 'rgba(0, 113, 227, 0.08)',
+              color: '#0071e3',
+              border: '1px solid rgba(0, 113, 227, 0.2)',
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}
@@ -71,41 +72,41 @@ export default function Navbar({ activeView, setActiveView }) {
       <nav style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
         <a
           href="#how-it-works"
-          style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
-          onMouseEnter={(e) => (e.target.style.color = '#ffffff')}
-          onMouseLeave={(e) => (e.target.style.color = '#cbd5e1')}
+          style={{ color: '#515154', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
+          onMouseEnter={(e) => (e.target.style.color = '#0071e3')}
+          onMouseLeave={(e) => (e.target.style.color = '#515154')}
         >
           How It Works
         </a>
         <a
           href="#impact"
-          style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
-          onMouseEnter={(e) => (e.target.style.color = '#ffffff')}
-          onMouseLeave={(e) => (e.target.style.color = '#cbd5e1')}
+          style={{ color: '#515154', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
+          onMouseEnter={(e) => (e.target.style.color = '#0071e3')}
+          onMouseLeave={(e) => (e.target.style.color = '#515154')}
         >
           Impact
         </a>
         <a
           href="#architecture"
-          style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
-          onMouseEnter={(e) => (e.target.style.color = '#ffffff')}
-          onMouseLeave={(e) => (e.target.style.color = '#cbd5e1')}
+          style={{ color: '#515154', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
+          onMouseEnter={(e) => (e.target.style.color = '#0071e3')}
+          onMouseLeave={(e) => (e.target.style.color = '#515154')}
         >
           Architecture
         </a>
         <a
           href="#calculator"
-          style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
-          onMouseEnter={(e) => (e.target.style.color = '#ffffff')}
-          onMouseLeave={(e) => (e.target.style.color = '#cbd5e1')}
+          style={{ color: '#515154', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
+          onMouseEnter={(e) => (e.target.style.color = '#0071e3')}
+          onMouseLeave={(e) => (e.target.style.color = '#515154')}
         >
           ROI Calculator
         </a>
         <a
           href="#faq"
-          style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
-          onMouseEnter={(e) => (e.target.style.color = '#ffffff')}
-          onMouseLeave={(e) => (e.target.style.color = '#cbd5e1')}
+          style={{ color: '#515154', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 500, transition: 'color 0.2s' }}
+          onMouseEnter={(e) => (e.target.style.color = '#0071e3')}
+          onMouseLeave={(e) => (e.target.style.color = '#515154')}
         >
           FAQ
         </a>
@@ -117,10 +118,10 @@ export default function Navbar({ activeView, setActiveView }) {
         <div
           style={{
             display: 'inline-flex',
-            background: 'rgba(255, 255, 255, 0.05)',
+            background: 'rgba(0, 0, 0, 0.05)',
             borderRadius: '9999px',
             padding: '3px',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(0, 0, 0, 0.08)',
           }}
         >
           <button
@@ -133,8 +134,8 @@ export default function Navbar({ activeView, setActiveView }) {
               fontWeight: 600,
               cursor: 'pointer',
               transition: 'all 0.2s',
-              background: activeView === 'landing' ? 'rgba(139, 92, 246, 0.3)' : 'transparent',
-              color: activeView === 'landing' ? '#ffffff' : '#94a3b8',
+              background: activeView === 'landing' ? 'rgba(0, 113, 227, 0.12)' : 'transparent',
+              color: activeView === 'landing' ? '#0071e3' : '#86868b',
             }}
           >
             Product Overview
@@ -152,9 +153,9 @@ export default function Navbar({ activeView, setActiveView }) {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              background: activeView === 'ops' ? 'linear-gradient(135deg, #06b6d4, #3b82f6)' : 'transparent',
-              color: activeView === 'ops' ? '#ffffff' : '#94a3b8',
-              boxShadow: activeView === 'ops' ? '0 0 12px rgba(6, 182, 212, 0.4)' : 'none',
+              background: activeView === 'ops' ? '#0071e3' : 'transparent',
+              color: activeView === 'ops' ? '#ffffff' : '#86868b',
+              boxShadow: activeView === 'ops' ? '0 2px 10px rgba(0, 113, 227, 0.3)' : 'none',
             }}
           >
             <Activity size={13} />

@@ -3,17 +3,17 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
-from app.models.emergency import (
+from ..models.emergency import (
     EmergencyAssignment,
     EmergencyPriority,
     EmergencyRequest,
     EmergencyRoute,
     EmergencyVehicle,
 )
-from app.models.emergency_conflict import EmergencyConflictResult
-from app.models.green_corridor import GreenCorridorPlan
-from app.models.qubo import QAOAResult
-from app.services.emergency_service import emergency_service
+from ..models.emergency_conflict import EmergencyConflictResult
+from ..models.green_corridor import GreenCorridorPlan
+from ..models.qubo import QAOAResult
+from ..services.emergency_service import emergency_service
 
 router = APIRouter(tags=["emergency"])
 
