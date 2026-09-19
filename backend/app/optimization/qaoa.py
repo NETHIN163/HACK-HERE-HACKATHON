@@ -1,43 +1,61 @@
-"""QAOA via Qiskit Aer with classical fallback. Never claims optimality."""
+"""QAOA via Qiskit Aer with classical fallback. Never claims optimality.
+
+PROTOTYPE: fixed angles, no variational optimisation loop.
+Valid hackathon claim: explores hybrid quantum-classical approach vs classical baseline.
+"""
 from . import qubo as Q
 
 
 def solve(qubo: dict, reps: int = 1, shots: int = 256) -> dict:
     n = qubo["variables"]
     try:
+        import numpy as np
+        from qiskit.quantum_info import SparsePauliOp
+        from qiskit.circuit.library import QAOAAnsatz
         from qiskit import QuantumCircuit
         from qiskit_aer import AerSimulator
-        from qiskit.circuit.library import QAOAAnsatz
-        from qiskit.quantum_info import SparsePauliOp
-        import numpy as np
+        import math
+
         Qm = np.array(qubo["Q"])
-        # Ising from QUBO diagonal/off-diagonal (Z-basis, prototype mapping)
+
+        # Build Ising Hamiltonian from QUBO (Qiskit uses big-endian Pauli strings)
         paulis, coeffs = [], []
         for i in range(n):
-            paulis.append("I" * i + "Z" + "I" * (n - i - 1)); coeffs.append(float(Qm[i, i]) / 2)
+            label = "I" * (n - i - 1) + "Z" + "I" * i
+            paulis.append(label)
+            coeffs.append(float(Qm[i, i]) / 2.0)
             for j in range(i + 1, n):
-                if Qm[i, j]:
-                    s = ["I"] * n; s[i] = "Z"; s[j] = "Z"
-                    paulis.append("".join(s)); coeffs.append(float(Qm[i, j]) / 4)
-        op = SparsePauliOp(paulis, coeffs)
-        ansatz = QAOAAnsatz(op, reps=reps)
-        qc = QuantumCircuit(n + ansatz.num_parameters)
-        # fixed prototype angles (no variational loop in demo)
-        import math
-        bound = ansatz.assign_parameters([0.5] * ansatz.num_parameters)
-        full = QuantumCircuit(n, n)
+                if Qm[i, j] != 0.0:
+                    label_list = ["I"] * n
+                    label_list[n - i - 1] = "Z"
+                    label_list[n - j - 1] = "Z"
+                    paulis.append("".join(label_list))
+                    coeffs.append(float(Qm[i, j]) / 4.0)
+
+        op = SparsePauliOp(paulis, coeffs=coeffs)
+        ansatz = QAOAAnsatz(cost_operator=op, reps=reps)
+
+        # Fixed prototype angles (no variational loop in hackathon demo)
+        param_values = [math.pi / 4] * ansatz.num_parameters
+        bound = ansatz.assign_parameters(param_values)
+
+        n_qubits = bound.num_qubits
+        full = QuantumCircuit(n_qubits, n_qubits)
         full.compose(bound, inplace=True)
-        full.measure(range(n), range(n))
+        full.measure(range(n_qubits), range(n_qubits))
         sim = AerSimulator()
         res = sim.run(full, shots=shots).result()
         counts = res.get_counts()
-        cands = sorted(counts.items(), key=lambda kv: -kv[1])[:16]
+        top = sorted(counts.items(), key=lambda kv: -kv[1])[:16]
         out = []
-        for bits, c in cands:
-            b = [int(x) for x in bits.replace(" ", "")[:n]]
-            out.append({"bits": b, "count": c, "objective": Q.energy(qubo["Q"], b)})
+        for bits_str, count in top:
+            bits_str = bits_str.replace(" ", "")
+            # Qiskit measurement output is in reverse qubit order; reverse to get variable order
+            bits = [int(x) for x in reversed(bits_str)][:n]
+            bits += [0] * (n - len(bits))  # pad if ansatz has more qubits than QUBO vars
+            out.append({"bits": bits, "count": count, "objective": Q.energy(qubo["Q"], bits)})
         out.sort(key=lambda d: d["objective"])
-        return {"mode": "HYBRID", "candidates": out, "shots": shots}
+        return {"mode": "HYBRID", "candidates": out, "shots": shots, "qubits": n_qubits}
     except Exception as e:
         import random
         rng = random.Random(7)
@@ -46,13 +64,27 @@ def solve(qubo: dict, reps: int = 1, shots: int = 256) -> dict:
             b = [rng.randint(0, 1) for _ in range(n)]
             out.append({"bits": b, "count": 1, "objective": Q.energy(qubo["Q"], b)})
         out.sort(key=lambda d: d["objective"])
-        return {"mode": "HYBRID_FALLBACK", "candidates": out, "shots": 16, "note": f"simulator fallback: {type(e).__name__}"}
+        return {
+            "mode": "HYBRID_FALLBACK",
+            "candidates": out,
+            "shots": 16,
+            "note": f"Qiskit simulator unavailable ({type(e).__name__}); using random sampling fallback",
+        }
 
 
 def to_signal_config(qubo: dict, bits: list[int]) -> dict:
+    """Convert a QUBO bit vector into a {junction: phase} signal configuration."""
     cfg = {}
+    phases = qubo["phases"]
     k = 0
     for j in qubo["junctions"]:
-        cfg[j] = qubo["phases"][1] if bits[k + 1] else qubo["phases"][0]
-        k += len(qubo["phases"])
+        # Pick the phase whose bit is set; default to phases[0] if all zero
+        selected = phases[0]
+        for p_idx, p in enumerate(phases):
+            if k + p_idx < len(bits) and bits[k + p_idx] == 1:
+                selected = p
+                break
+        cfg[j] = selected
+        k += len(phases)
     return cfg
+
