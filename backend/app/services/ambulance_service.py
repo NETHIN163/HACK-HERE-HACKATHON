@@ -23,6 +23,17 @@ def get(ambulance_id: str) -> Ambulance | None:
     return _ambulances.get(ambulance_id)
 
 
+def register(ambulance_id: str, current_location: str = "J1") -> Ambulance:
+    """Register a demo ambulance while retaining its current junction metadata."""
+    existing = get(ambulance_id)
+    if existing:
+        existing.status = AmbulanceStatus.AVAILABLE
+        return existing
+    vehicle = Ambulance(ambulance_id=ambulance_id, vehicle_number=ambulance_id)
+    _ambulances[ambulance_id] = vehicle
+    return vehicle
+
+
 def nearest_available(pickup: str) -> Ambulance | None:
     seed_demo()
     avail = [a for a in _ambulances.values() if a.status == AmbulanceStatus.AVAILABLE]

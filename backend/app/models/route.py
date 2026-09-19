@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 
 class RouteStatus(str, Enum):
+    CALCULATED = "CALCULATED"
+    BLOCKED = "BLOCKED"
     ACTIVE = "ACTIVE"
     INVALIDATED = "INVALIDATED"
     COMPLETED = "COMPLETED"

@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel, Field, ConfigDict
+from .route import RouteStatus
 
 
 class EmergencyPriority(str, Enum):
@@ -27,10 +28,13 @@ class RequestStatus(str, Enum):
     EN_ROUTE = "EN_ROUTE"
     AT_HOSPITAL = "AT_HOSPITAL"
     CLOSED = "CLOSED"
+    UNROUTABLE = "UNROUTABLE"
+    COMPLETED = "COMPLETED"
 
 
 class AmbulanceStatus(str, Enum):
     AVAILABLE = "AVAILABLE"
+    BUSY = "BUSY"
     EN_ROUTE = "EN_ROUTE"
     AT_PICKUP = "AT_PICKUP"
     TRANSPORTING = "TRANSPORTING"
@@ -49,7 +53,9 @@ class EmergencyRequest(BaseModel):
     priority: EmergencyPriority = EmergencyPriority.HIGH
     status: RequestStatus = RequestStatus.PENDING
     created_at: float
+    timestamp: Optional[float] = None
     assigned_vehicle_id: Optional[str] = None
+    vehicle_id: Optional[str] = None
     assigned_route_id: Optional[str] = None
     corridor_id: Optional[str] = None
 
@@ -70,7 +76,9 @@ class EmergencyAssignment(BaseModel):
     request_id: str
     vehicle_id: str
     route_id: Optional[str] = None
-    assigned_at: float
+    route: Optional["EmergencyRoute"] = None
+    assigned_at: float = 0.0
+    timestamp: Optional[float] = None
 
 
 class EmergencyRoute(BaseModel):

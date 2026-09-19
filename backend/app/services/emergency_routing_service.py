@@ -59,6 +59,7 @@ class EmergencyRoutingService:
             destination=destination,
             priority=priority,
             status=RequestStatus.PENDING,
+            created_at=time.time(),
             timestamp=time.time(),
         )
         self.requests[request_id] = req
@@ -155,7 +156,8 @@ class EmergencyRoutingService:
             request_id=request_id,
             vehicle_id=selected_vehicle.vehicle_id,
             route=route,
-            timestamp=time.time(),
+            route_id=route.route_id,
+            assigned_at=time.time(),
         )
         self.assignments[assign_id] = assignment
         return assignment

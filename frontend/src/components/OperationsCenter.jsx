@@ -14,6 +14,8 @@ import {
   ShieldCheck,
   BarChart2,
   Sliders,
+  HelpCircle,
+  X,
 } from 'lucide-react';
 import ConnectionStatus from './ConnectionStatus';
 import { useAppState, useAppDispatch } from '../context/AppContext';
@@ -35,6 +37,7 @@ export default function OperationsCenter() {
   const [loading, setLoading] = useState(false);
   const [activeSubTab, setActiveSubTab] = useState('network'); // 'network', 'dispatch', 'quantum', 'incidents'
   const [simulationRunning, setSimulationRunning] = useState(true);
+  const [showPreview, setShowPreview] = useState(true);
   const [simulationScenario, setSimulationScenario] = useState('normal');
   const [simulationTick, setSimulationTick] = useState(0);
   const [simulationJunctions, setSimulationJunctions] = useState({
@@ -336,6 +339,57 @@ export default function OperationsCenter() {
           </button>
         </div>
       </div>
+
+      {showPreview && (
+        <div
+          className="glass-card-static"
+          style={{
+            padding: '20px 24px',
+            marginBottom: '24px',
+            borderRadius: '16px',
+            border: '1px solid rgba(167, 139, 250, 0.32)',
+            background: 'linear-gradient(135deg, rgba(110, 86, 207, 0.14), rgba(6, 182, 212, 0.08))',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+              <HelpCircle size={22} color="#a78bfa" />
+              <div>
+                <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#ffffff', marginBottom: '4px' }}>
+                  Local Demo Preview
+                </h2>
+                <p style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
+                  Follow this short flow to demonstrate adaptive traffic control in Saravanampatti.
+                </p>
+              </div>
+            </div>
+            <button
+              aria-label="Close demo preview"
+              title="Close demo preview"
+              onClick={() => setShowPreview(false)}
+              style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '2px' }}
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
+            {[
+              ['01', 'Start simulation', 'Keep the live tick running.'],
+              ['02', 'Create pressure', 'Choose congestion or incident.'],
+              ['03', 'Read telemetry', 'Watch queues, density, and pedestrians.'],
+              ['04', 'Dispatch ambulance', 'Lock the emergency green corridor.'],
+              ['05', 'Compare results', 'Run QAOA beside the classical baseline.'],
+            ].map(([number, title, description]) => (
+              <div key={number} style={{ background: 'rgba(7, 5, 14, 0.42)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '12px' }}>
+                <div style={{ color: '#67e8f9', fontSize: '0.68rem', fontWeight: 800, marginBottom: '6px' }}>{number}</div>
+                <div style={{ color: '#ffffff', fontSize: '0.76rem', fontWeight: 700, marginBottom: '4px' }}>{title}</div>
+                <div style={{ color: '#94a3b8', fontSize: '0.68rem', lineHeight: 1.35 }}>{description}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Sub-tab Navigation */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>

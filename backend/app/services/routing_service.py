@@ -3,6 +3,11 @@ import itertools
 import networkx as nx
 from . import network_store as net
 
+# Compatibility registry for the class-based emergency routing workflow.
+requests: dict[str, object] = {}
+vehicles: dict[str, object] = {}
+assignments: dict[str, object] = {}
+
 
 def edge_cost(d: dict, w: dict) -> float:
     return (

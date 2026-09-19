@@ -14,9 +14,57 @@ so two emergencies sharing a junction do not overwrite each other.
 import time
 from . import events
 from . import network_store as net
+from app.models.green_corridor import GreenCorridorPlan, JunctionPriorityPlan, CorridorStatus, SignalPhase
 
 # Key: (junction, emergency_id) -> reservation dict
 _reservations: dict[tuple, dict] = {}
+# Compatibility registry used by the class-based emergency workflow.
+active_plans: dict[str, list[dict]] = {}
+
+
+def plan_corridor(assignment) -> GreenCorridorPlan:
+    """Compatibility adapter for the class-based corridor workflow."""
+    route = assignment.route
+    if route is None:
+        raise ValueError(f"Assignment '{assignment.assignment_id}' has no route")
+    generate(assignment.request_id, route.path)
+    plan = GreenCorridorPlan(
+        corridor_id=f"CORRIDOR_{assignment.vehicle_id}_{assignment.request_id}",
+        request_id=assignment.request_id,
+        vehicle_id=assignment.vehicle_id,
+        route_id=route.route_id,
+        ordered_junctions=route.path,
+        junction_plans=[
+            JunctionPriorityPlan(
+                junction_id=junction,
+                sequence_order=index,
+                requires_priority=True,
+                requested_phase=SignalPhase.EMERGENCY_PRIORITY,
+                green_duration=60.0,
+                is_safe=True,
+                activated=False,
+            )
+            for index, junction in enumerate(route.path, start=1)
+        ],
+        status=CorridorStatus.PLANNED,
+        created_at=time.time(),
+    )
+    active_plans[assignment.request_id] = plan
+    return plan
+
+
+def activate_corridor(request_id: str) -> GreenCorridorPlan:
+    plan = active_plans[request_id]
+    plan.status = CorridorStatus.ACTIVE
+    return plan
+
+
+def release_corridor(request_id: str) -> GreenCorridorPlan:
+    plan = active_plans[request_id]
+    plan.status = CorridorStatus.RELEASED
+    active_plans.pop(request_id, None)
+    release(request_id)
+    return plan
 
 
 def generate(emergency_id: str, nodes: list[str]) -> list[dict]:
@@ -37,6 +85,7 @@ def generate(emergency_id: str, nodes: list[str]) -> list[dict]:
         _reservations[(j, emergency_id)] = reservation
         out.append(reservation)
     events.emit("green_corridor.updated", {"emergency_id": emergency_id, "reservations": out})
+    active_plans[emergency_id] = out
     return out
 
 
@@ -44,6 +93,7 @@ def release(emergency_id: str) -> None:
     """Release all corridor reservations for an emergency."""
     _clear_emergency(emergency_id)
     events.emit("green_corridor.updated", {"emergency_id": emergency_id, "reservations": []})
+    active_plans.pop(emergency_id, None)
 
 
 def current(emergency_id: str) -> list[dict]:
