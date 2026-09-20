@@ -1,0 +1,97 @@
+{\rtf1\ansi\deff0
+{\fonttbl{\f0 Aptos;}{\f1 Consolas;}{\f2 Georgia;}}
+\paperw12240\paperh15840\margl1080\margr1080\margt900\margb900
+\viewkind4\uc1
+\pard\qc\sa240\f2\fs36\b Q-FLOW Technical Overview\b0\par
+\pard\qc\sa320\f0\fs18 Quantum-Assisted Smart Traffic and Emergency Routing\par
+\pard\qc\sa480\f0\fs16 Adaptive traffic signals, camera intelligence, emergency green corridors, and blocked-road-aware routing.\par
+
+\pard\sa180\f2\fs26\b 1. Project Summary\b0\par
+\pard\sa160\f0\fs20 Q-FLOW is an adaptive metropolitan traffic and emergency-response platform. It combines camera-based traffic detection, dynamic signal timing, graph-based routing, quantum-inspired optimization, and ambulance green corridors.\par
+\pard\sa100\f0\fs20 The platform is designed to reduce congestion, adapt signal timing to vehicle density, protect pedestrian crossings, prioritize ambulances, avoid accident-blocked roads, track emergency vehicles, and compare classical and QAOA-based optimization.\par
+
+\pard\sa180\f2\fs26\b 2. End-to-End Workflow\b0\par
+\pard\li360\sa80\f1\fs18 Camera and sensor input -> Traffic density analysis -> Signal timing optimizer -> QUBO/QAOA engine -> Adaptive signal control -> Emergency corridor management.\par
+\pard\li360\sa80\f1\fs18 Emergency request -> NetworkX route calculation -> Blocked-road filtering -> Green corridor activation -> Ambulance tracking.\par
+
+\pard\sa180\f2\fs26\b 3. Implemented Features\b0\par
+\pard\sa100\f2\fs22\b Traffic Simulation\b0\par
+\pard\sa100\f0\fs20 The operations center simulates vehicle queue length, vehicle density, pedestrian counts, congestion scenarios, incident scenarios, network simulation ticks, signal phase changes, and adaptive green duration. Users can pause, resume, and switch between normal, congestion, and incident scenarios.\par
+
+\pard\sa100\f2\fs22\b Multi-Intersection Network\b0\par
+\pard\sa80\f1\fs18 J1 ----- J2 ----- J3\par
+\pard\sa80\f1\fs18  |    /   |   \\    |\par
+\pard\sa100\f1\fs18 J4 ----- J5 ----- J6\par
+\pard\sa100\f0\fs20 Each junction displays queue length, road capacity, vehicle density, pedestrian count, signal phase, green-light duration, and emergency corridor status. The frontend also includes a generative topology visualization with animated junction nodes and signal pulses.\par
+
+\pard\sa100\f2\fs22\b Camera AI\b0\par
+\pard\sa100\f0\fs20 TensorFlow.js and COCO-SSD run locally in the browser to detect cars, trucks, buses, motorcycles, bicycles, and pedestrians. Camera counts update the J1 simulation state.\par
+\pard\li360\sa80\f1\fs18 Camera detection -> vehicle and pedestrian counts -> queue and density update -> signal timing recalculation -> dashboard update.\par
+\pard\sa100\f0\fs20 Camera video is processed locally and is not uploaded to the backend.\par
+
+\pard\sa100\f2\fs22\b Adaptive Signal Timing\b0\par
+\pard\sa80\f0\fs20 High vehicle density increases green duration. High queue length increases green duration. Active pedestrian demand switches the junction to pedestrian clearance. Ambulance corridor junctions receive emergency priority and a longer protected green phase.\par
+
+\pard\sa100\f2\fs22\b Ambulance Dispatch\b0\par
+\pard\li360\sa80\f1\fs18 Create emergency request -> Calculate route -> Exclude blocked roads -> Activate green corridor -> Reserve signals -> Track ambulance movement.\par
+\pard\sa80\f0\fs20 The tracker displays ambulance ID, route, current junction, speed, distance, ETA, corridor state, and arrival status.\par
+
+\pard\sa100\f2\fs22\b Accident and Road Closure Handling\b0\par
+\pard\sa80\f0\fs20 The incident service validates the road, changes its status to BLOCKED or CLOSED, stops traffic flow, emits route-impact events, and causes new routes to exclude the affected road. Emergency traffic uses an available bypass when possible.\par
+
+\pard\sa180\f2\fs26\b 4. Technology Stack\b0\par
+\pard\sa100\f2\fs22\b Frontend\b0\par
+\pard\sa80\f0\fs20 React 18: reusable dashboard components and application state.\par
+\pard\sa80\f0\fs20 Vite: local development server and production build.\par
+\pard\sa80\f0\fs20 JavaScript/JSX: simulation logic, UI actions, and view transitions.\par
+\pard\sa80\f0\fs20 CSS: Stitch-inspired design, responsive layout, animations, topology effects, hover states, and reduced-motion support.\par
+\pard\sa80\f0\fs20 TensorFlow.js and COCO-SSD: browser-based vehicle and pedestrian detection.\par
+\pard\sa80\f0\fs20 Leaflet: interactive route and ambulance map.\par
+\pard\sa80\f0\fs20 Lucide React: interface icons.\par
+\pard\sa80\f0\fs20 Fetch API and WebSocket API: REST requests and live event updates.\par
+
+\pard\sa100\f2\fs22\b Backend\b0\par
+\pard\sa80\f0\fs20 Python: traffic simulation, routing, incidents, emergencies, and optimization.\par
+\pard\sa80\f0\fs20 FastAPI: REST API endpoints and WebSocket routes.\par
+\pard\sa80\f0\fs20 Uvicorn: ASGI server running on port 8000.\par
+\pard\sa80\f0\fs20 Pydantic: validation models for roads, junctions, signals, ambulances, routes, and emergencies.\par
+\pard\sa80\f0\fs20 NetworkX: road graph and emergency route calculation.\par
+\pard\sa80\f0\fs20 NumPy: deterministic traffic simulation and reproducible demand changes.\par
+\pard\sa80\f0\fs20 Qiskit and Qiskit Aer: QUBO/QAOA optimization workflows and local quantum simulation.\par
+\pard\sa80\f0\fs20 WebSockets: real-time traffic, signal, incident, pedestrian, and emergency events.\par
+
+\pard\sa180\f2\fs26\b 5. How the Main Technologies Work Together\b0\par
+\pard\sa80\f0\fs20 NetworkX represents junctions as nodes and roads as graph edges. Blocked or closed roads are removed from eligible route calculations.\par
+\pard\sa80\f0\fs20 The classical optimizer evaluates queue length, density, pedestrian crossings, and emergency reservations to produce signal configurations.\par
+\pard\sa80\f0\fs20 QUBO converts traffic signal decisions into an optimization problem. QAOA and Qiskit Aer evaluate candidate configurations and provide benchmark results against classical optimization.\par
+\pard\sa80\f0\fs20 FastAPI exposes the backend services. React calls those services through REST and receives live events through WebSockets.\par
+
+\pard\sa180\f2\fs26\b 6. Important Services and Components\b0\par
+\pard\sa80\f0\fs20 Backend services: traffic_service, traffic_engine, routing_service, emergency_routing_service, emergency_service, incident_service, signal_engine, green_corridor_service, ambulance_assignment_service, emergency_conflict_resolution_service, classical optimizer, QUBO formulation, and QAOA execution.\par
+\pard\sa80\f0\fs20 Frontend components: OperationsCenter, CameraDetection, LiveMap, AmbulanceTracking, ConnectionStatus, Navbar, HeroSection, api.js, websocket.js, AppContext, and WebSocketContext.\par
+
+\pard\sa180\f2\fs26\b 7. Local Setup\b0\par
+\pard\sa80\f2\fs18\b Backend\b0\par
+\pard\li360\sa80\f1\fs18 cd C:\\Users\\nethi\\OneDrive\\Documents\\HACK-HERE-HACKATHON\\backend\par
+\pard\li360\sa80\f1\fs18 python run.py\par
+\pard\sa80\f2\fs18\b Frontend\b0\par
+\pard\li360\sa80\f1\fs18 cd C:\\Users\\nethi\\OneDrive\\Documents\\HACK-HERE-HACKATHON\\frontend\par
+\pard\li360\sa80\f1\fs18 npm install\par
+\pard\li360\sa80\f1\fs18 npm run dev\par
+\pard\sa80\f0\fs20 Frontend URL: http://127.0.0.1:5173/\par
+\pard\sa80\f0\fs20 Backend URL: http://127.0.0.1:8000/\par
+\pard\sa80\f0\fs20 WebSocket URL: ws://localhost:8000/ws\par
+
+\pard\sa180\f2\fs26\b 8. Validation Status\b0\par
+\pard\sa80\f0\fs20 Backend regression suite: 120 tests passed.\par
+\pard\sa80\f0\fs20 Frontend production build: passed.\par
+\pard\sa80\f0\fs20 Backend health endpoint: HTTP 200.\par
+\pard\sa80\f0\fs20 Traffic and emergency API endpoints: HTTP 200.\par
+\pard\sa80\f0\fs20 CORS preflight response: verified.\par
+\pard\sa80\f0\fs20 Ambulance dispatch route integration: fixed and compiled.\par
+
+\pard\sa180\f2\fs26\b 9. Current Limitation and Next Step\b0\par
+\pard\sa80\f0\fs20 The camera-to-signal demonstration currently updates the frontend simulation state directly. For production, add a telemetry endpoint such as POST /api/telemetry/junctions/{junction_id}. The frontend can then send camera counts to the backend, allowing the backend optimizer to persist telemetry, calculate signal configurations, and broadcast results through WebSockets.\par
+
+\pard\sa320\qc\f2\fs20\b Q-FLOW turns city traffic signals into an intelligent, adaptive emergency-response network.\b0\par
+}
