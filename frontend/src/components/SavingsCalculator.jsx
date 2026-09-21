@@ -22,7 +22,7 @@ export default function SavingsCalculator({ onLaunchSimulator }) {
           <span>Interactive City Impact Model</span>
         </div>
         <h2 style={{ fontSize: '2.6rem', fontWeight: 800, color: '#1d1d1f', marginBottom: '16px' }}>
-          What Can Q-Flow Do For Your City?
+          What Can TRAFFIQ Do For Your City?
         </h2>
         <p style={{ color: '#86868b', fontSize: '1.05rem', maxWidth: '650px', margin: '0 auto' }}>
           Adjust the sliders below to estimate your municipality’s annual emergency dispatch time saved, fuel reduction, and carbon offset.

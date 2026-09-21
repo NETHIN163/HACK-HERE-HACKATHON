@@ -20,7 +20,7 @@ export default function Footer() {
               <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #0071e3, #6e56cf)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Cpu size={18} color="#ffffff" />
               </div>
-              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1d1d1f' }}>Q-FLOW</span>
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1d1d1f' }}>TRAFFIQ</span>
             </div>
             <p style={{ color: '#86868b', lineHeight: 1.6, maxWidth: '280px' }}>
               Quantum-Assisted Smart Traffic Signal Optimization & Emergency Green Corridor Network.
@@ -71,7 +71,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#86868b', fontSize: '0.8rem' }}>
-          <div>© 2026 Q-Flow Technologies Inc. All Rights Reserved. Hackathon Edition.</div>
+          <div>© 2026 TRAFFIQ Technologies Inc. All Rights Reserved. Hackathon Edition.</div>
           <div style={{ display: 'flex', gap: '20px' }}>
             <a href="#privacy" style={{ color: '#86868b', textDecoration: 'none' }}>Terms of Service</a>
             <a href="#privacy" style={{ color: '#86868b', textDecoration: 'none' }}>Privacy Policy</a>

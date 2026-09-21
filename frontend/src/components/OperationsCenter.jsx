@@ -348,7 +348,7 @@ export default function OperationsCenter() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ffffff' }}>
-                Q-FLOW Operations Control Center
+                TRAFFIQ Operations Control Center
               </h1>
               <span className="glass-pill-cyan" style={{ fontSize: '0.75rem', padding: '3px 10px' }}>
                 Live Simulation
@@ -699,7 +699,7 @@ export default function OperationsCenter() {
                 Emergency Vehicle Dispatch & Corridor Lock
               </h3>
               <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '24px' }}>
-                Select pickup location and target trauma hospital. Q-Flow automatically computes the fastest route and locks traffic signals to green.
+                Select pickup location and target trauma hospital. TRAFFIQ automatically computes the fastest route and locks traffic signals to green.
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
@@ -787,7 +787,7 @@ export default function OperationsCenter() {
                 {/* Quantum card */}
                 <div style={{ background: 'rgba(139, 92, 246, 0.12)', border: '1px solid rgba(139, 92, 246, 0.4)', borderRadius: '14px', padding: '20px' }}>
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#a78bfa', textTransform: 'uppercase', marginBottom: '12px' }}>
-                    Q-Flow Quantum QAOA Solver
+                    TRAFFIQ Quantum QAOA Solver
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
@@ -818,7 +818,7 @@ export default function OperationsCenter() {
                 Dynamic Event & Hazard Injection
               </h3>
               <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '24px' }}>
-                Simulate real-time traffic events (accidents, road closures, congestion spikes) to test Q-Flow dynamic rerouting.
+                Simulate real-time traffic events (accidents, road closures, congestion spikes) to test TRAFFIQ dynamic rerouting.
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>

@@ -6,24 +6,24 @@ export default function FaqAccordion() {
 
   const faqs = [
     {
-      q: 'What is the Q-Flow Quantum-Assisted Traffic Platform?',
-      a: 'Q-Flow is a next-generation urban traffic and emergency dispatch management platform. It models multi-intersection signal networks into QUBO (Quadratic Unconstrained Binary Optimization) matrices and runs QAOA variational quantum algorithms to optimize signal phase allocation and prioritize emergency green corridors in real time.',
+      q: 'What is the TRAFFIQ Quantum-Assisted Traffic Platform?',
+      a: 'TRAFFIQ is a next-generation urban traffic and emergency dispatch management platform. It models multi-intersection signal networks into QUBO (Quadratic Unconstrained Binary Optimization) matrices and runs QAOA variational quantum algorithms to optimize signal phase allocation and prioritize emergency green corridors in real time.',
     },
     {
-      q: 'How does Q-Flow outperform classical fixed or rule-based traffic controllers?',
-      a: 'Classical fixed-timer signals cannot adapt to sudden congestion surges, accidents, or emergency dispatch calls. Q-Flow dynamically re-evaluates signal phase durations sub-second, reducing ambulance travel times by 75% and cutting vehicle idle queue wait times by up to 97%.',
+      q: 'How does TRAFFIQ outperform classical fixed or rule-based traffic controllers?',
+      a: 'Classical fixed-timer signals cannot adapt to sudden congestion surges, accidents, or emergency dispatch calls. TRAFFIQ dynamically re-evaluates signal phase durations sub-second, reducing ambulance travel times by 75% and cutting vehicle idle queue wait times by up to 97%.',
     },
     {
-      q: 'What quantum hardware or simulators does Q-Flow use?',
-      a: 'Q-Flow is built using Qiskit, Qiskit Aer, and PennyLane. It supports both execution on local high-performance statevector simulators and remote deployment to IBM Quantum noisy intermediate-scale quantum (NISQ) hardware QPUs.',
+      q: 'What quantum hardware or simulators does TRAFFIQ use?',
+      a: 'TRAFFIQ is built using Qiskit, Qiskit Aer, and PennyLane. It supports both execution on local high-performance statevector simulators and remote deployment to IBM Quantum noisy intermediate-scale quantum (NISQ) hardware QPUs.',
     },
     {
       q: 'How are emergency green corridors preempted safely?',
-      a: 'When an emergency request is registered, Q-Flow locks the signals along the optimal calculated route to green 30 seconds prior to ambulance arrival while clearing side-street queues beforehand. Overlapping emergency conflicts are automatically resolved via a strict priority matrix.',
+      a: 'When an emergency request is registered, TRAFFIQ locks the signals along the optimal calculated route to green 30 seconds prior to ambulance arrival while clearing side-street queues beforehand. Overlapping emergency conflicts are automatically resolved via a strict priority matrix.',
     },
     {
-      q: 'Can Q-Flow integrate with existing municipal traffic camera & sensor infrastructure?',
-      a: 'Yes. Q-Flow provides a standardized REST and WebSocket API layer that ingests live loop detector data, camera queue counters, and emergency vehicle GPS feeds seamlessly.',
+      q: 'Can TRAFFIQ integrate with existing municipal traffic camera & sensor infrastructure?',
+      a: 'Yes. TRAFFIQ provides a standardized REST and WebSocket API layer that ingests live loop detector data, camera queue counters, and emergency vehicle GPS feeds seamlessly.',
     },
   ];
 

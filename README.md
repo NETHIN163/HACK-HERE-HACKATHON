@@ -1,8 +1,8 @@
-# Q-FLOW
+# TRAFFIQ
 
 ## Quantum-Assisted Smart Traffic and Emergency Routing
 
-Q-FLOW is an intelligent metropolitan traffic-control and emergency-response platform. It combines camera-based traffic detection, adaptive traffic signals, graph-based routing, QUBO/QAOA optimization, pedestrian safety, accident-aware rerouting, and ambulance green corridors.
+TRAFFIQ is an intelligent metropolitan traffic-control and emergency-response platform. It combines camera-based traffic detection, adaptive traffic signals, graph-based routing, QUBO/QAOA optimization, pedestrian safety, accident-aware rerouting, and ambulance green corridors.
 
 The goal is simple: help cities move everyday traffic more efficiently while giving emergency vehicles the safest and fastest possible route.
 
@@ -30,7 +30,7 @@ The goal is simple: help cities move everyday traffic more efficiently while giv
 5. Detected vehicles and pedestrians update the J1 traffic state.
 6. Signal timing changes according to density and pedestrian demand.
 7. Open **Emergency dispatch** and dispatch an ambulance.
-8. Q-FLOW calculates a route and activates a green corridor.
+8. TRAFFIQ calculates a route and activates a green corridor.
 9. Open **Incident lab** and block a road.
 10. New emergency routes avoid the blocked road and use a safe bypass.
 11. Use **Live map** or **Ambulance tracking** to follow the emergency vehicle.
@@ -117,8 +117,6 @@ HACK-HERE-HACKATHON/
 │   ├── package.json
 │   └── vite.config.js
 ├── docs/
-│   ├── Q_FLOW_TECHNICAL_OVERVIEW.md
-│   └── Q_FLOW_TECHNICAL_OVERVIEW.rtf
 └── README.md
 ```
 
@@ -267,13 +265,6 @@ POST /api/telemetry/junctions/{junction_id}
 ```
 
 That endpoint could persist camera telemetry, run the backend signal optimizer, and broadcast updated signal configurations to all connected dashboard clients.
-
-## Documentation
-
-For the detailed technical explanation, see:
-
-- [Technical Overview](docs/Q_FLOW_TECHNICAL_OVERVIEW.md)
-- [Word-compatible Technical Overview](docs/Q_FLOW_TECHNICAL_OVERVIEW.rtf)
 
 ## License
 

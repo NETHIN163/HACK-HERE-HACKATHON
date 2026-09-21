@@ -35,7 +35,7 @@ export default function ComparisonToggle() {
             color: mode === 'before' ? '#ff3b30' : '#86868b',
           }}
         >
-          Before Q-Flow
+          Before TRAFFIQ
         </button>
         <button
           onClick={() => setMode('with')}
@@ -52,7 +52,7 @@ export default function ComparisonToggle() {
             boxShadow: mode === 'with' ? '0 4px 14px rgba(0, 113, 227, 0.3)' : 'none',
           }}
         >
-          With Q-Flow
+          With TRAFFIQ
         </button>
       </div>
 
@@ -101,7 +101,7 @@ export default function ComparisonToggle() {
         {/* Node Comparison Grid */}
         <div style={{ background: '#f5f5f7', padding: '24px', borderRadius: '16px', border: '1px solid rgba(0,0,0,0.06)' }}>
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#1d1d1f', marginBottom: '16px' }}>
-            {mode === 'with' ? 'Q-FLOW QUANTUM-COORDINATED NETWORK GRAPH' : 'LEGACY ISOLATED INTERSECTION MATRIX'}
+            {mode === 'with' ? 'TRAFFIQ QUANTUM-COORDINATED NETWORK GRAPH' : 'LEGACY ISOLATED INTERSECTION MATRIX'}
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '12px' }}>
             {['App 1: J1 North', 'App 2: J2 East', 'App 3: J3 Hub', 'App 4: J4 Trauma', 'App 5: J5 Avenue', 'App 6: J6 South'].map((app, i) => (

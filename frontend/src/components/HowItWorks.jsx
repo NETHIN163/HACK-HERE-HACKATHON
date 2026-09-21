@@ -12,7 +12,7 @@ export default function HowItWorks() {
           <span>Core Platform Technology</span>
         </div>
         <h2 style={{ fontSize: '2.6rem', fontWeight: 800, color: '#1d1d1f', marginBottom: '16px' }}>
-          How Q-Flow Transforms Urban Mobility
+          How TRAFFIQ Transforms Urban Mobility
         </h2>
         <p style={{ color: '#86868b', fontSize: '1.05rem', maxWidth: '650px', margin: '0 auto' }}>
           From real-time traffic telemetry ingestion to quantum-powered QUBO signal execution and emergency corridor safety locks.
@@ -67,7 +67,7 @@ export default function HowItWorks() {
                 See Traffic Bottlenecks Where Legacy Systems Fail
               </h3>
               <p style={{ color: '#515154', lineHeight: 1.6, marginBottom: '20px', fontSize: '0.95rem' }}>
-                Q-Flow continuously ingests queue length, vehicle density, road capacity, and emergency request signals across 4–8 connected intersections in a unified graph network.
+                TRAFFIQ continuously ingests queue length, vehicle density, road capacity, and emergency request signals across 4–8 connected intersections in a unified graph network.
               </p>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {[
@@ -120,7 +120,7 @@ export default function HowItWorks() {
                 Hybrid Quantum-Classical Signal Optimization
               </h3>
               <p style={{ color: '#515154', lineHeight: 1.6, marginBottom: '20px', fontSize: '0.95rem' }}>
-                Traffic signal timing across connected intersections is modeled as a Quadratic Unconstrained Binary Optimization (QUBO) problem. Q-Flow executes QAOA circuits to find global optimal phase durations 3.2x faster than classical exhaustive search.
+                Traffic signal timing across connected intersections is modeled as a Quadratic Unconstrained Binary Optimization (QUBO) problem. TRAFFIQ executes QAOA circuits to find global optimal phase durations 3.2x faster than classical exhaustive search.
               </p>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {[
@@ -184,7 +184,7 @@ export default function HowItWorks() {
                 Instant Emergency Green Corridor Lock
               </h3>
               <p style={{ color: '#515154', lineHeight: 1.6, marginBottom: '20px', fontSize: '0.95rem' }}>
-                When an ambulance triggers a trauma request, Q-Flow calculates the fastest candidate route and overrides signal phases along the entire path to guarantee green lights without creating side-street gridlocks.
+                When an ambulance triggers a trauma request, TRAFFIQ calculates the fastest candidate route and overrides signal phases along the entire path to guarantee green lights without creating side-street gridlocks.
               </p>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {[
@@ -230,7 +230,7 @@ export default function HowItWorks() {
                 Automated Incident & Rerouting Protocol
               </h3>
               <p style={{ color: '#515154', lineHeight: 1.6, marginBottom: '20px', fontSize: '0.95rem' }}>
-                Whether facing sudden road closures, multi-vehicle accidents, or intersecting ambulance routes, Q-Flow’s conflict resolution engine dynamically computes alternative routes and avoids bottleneck collisions.
+                Whether facing sudden road closures, multi-vehicle accidents, or intersecting ambulance routes, TRAFFIQ’s conflict resolution engine dynamically computes alternative routes and avoids bottleneck collisions.
               </p>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {[
@@ -253,7 +253,7 @@ export default function HowItWorks() {
                 <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>INCIDENT DETECTED: ROAD J1-J2 BLOCKED</span>
               </div>
               <p style={{ fontSize: '0.8rem', color: '#515154', marginBottom: '16px' }}>
-                Multi-vehicle accident reported. Q-Flow automatically updated graph edge weights and computed optimal bypass via J1 → J4 → J3.
+                Multi-vehicle accident reported. TRAFFIQ automatically updated graph edge weights and computed optimal bypass via J1 → J4 → J3.
               </p>
               <div style={{ background: 'rgba(52, 199, 89, 0.1)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(52, 199, 89, 0.2)', fontSize: '0.75rem', color: '#1d1d1f' }}>
                 Status: <strong style={{ color: '#34c759' }}>Bypass Route Calculated & Green Corridor Re-established</strong>

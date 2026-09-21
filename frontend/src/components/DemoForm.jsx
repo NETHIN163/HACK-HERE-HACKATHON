@@ -29,7 +29,7 @@ export default function DemoForm({ isOpen, onClose }) {
         </div>
 
         <h2 style={{ fontSize: '2.6rem', fontWeight: 800, color: '#f8fafc', marginBottom: '16px' }}>
-          See Q-Flow In Action Today
+          See TRAFFIQ In Action Today
         </h2>
         <p style={{ color: '#94a3b8', fontSize: '1rem', marginBottom: '36px', maxWidth: '560px', margin: '0 auto 36px' }}>
           Maintain strong emergency corridor priority and sub-second signal coordination across all metropolitan traffic sectors.
